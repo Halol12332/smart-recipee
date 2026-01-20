@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+
+# Virtual env
+.venv/
+venv/
+
+# VSCode
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Outputs / runs
+outputs/
+runs/
+
+# Data (optional - usually don't push images)
+# data/
+
+# Secrets
+.env
+
+# Big model weights (optional)
+*.pt
