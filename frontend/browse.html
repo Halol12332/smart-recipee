@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Recipee - Recipe Recommendations</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-top">
+                <div>
+                    <h1>Smart Recipee</h1>
+                    <p class="subtitle">Your Trustful Recipe Recommender</p>
+                </div>
+                <nav class="header-nav">
+                    <a href="index.html" class="nav-link">🏠 Home</a>
+                    <a href="browse.html" class="nav-link">🍽️ Recipes</a>
+                    <a href="history.html" class="nav-link">❤️ Favourites & History</a>
+                    <a href="meal-planner.html" class="nav-link">📅 Meal Planner</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Upload Section -->
+        <section class="upload-section">
+            <h2>Upload Fridge Photo</h2>
+            <p class="hint">Upload an image to detect ingredients first. Then review, edit, and confirm before recipe recommendations are shown.</p>
+
+            <div class="upload-row">
+                <input id="imageUpload" type="file" accept="image/*" capture="environment">
+                <button id="detectBtn" class="btn-primary" type="button">Detect Ingredients</button>
+            </div>
+
+            <p id="uploadStatus" class="results-count" style="margin-top: 0.5rem;"></p>
+            
+        </section>
+        <section class="preview-section">
+            <h2>Detection Preview</h2>
+            <div id="detectionPreview" class="detection-preview" style="display: none;">
+                <img id="annotatedPreviewImage" class="annotated-preview-image" alt="Annotated detection result">
+                <div id="detectionSummary" class="detection-summary"></div>
+            </div>
+        </section>
+
+        <!-- Ingredients Display -->
+        <section class="ingredients-section">
+            <h2>Your Ingredients</h2>
+            <div id="ingredientsList" class="ingredients-list">
+                <!-- populated by JS -->
+            </div>
+        </section>
+
+        <!-- Review / Confirm Section -->
+        <section id="reviewSection" class="review-section" style="display: none;">
+            <h2>Review Detected Ingredients</h2>
+            <p id="reviewStatus" class="review-status"></p>
+
+            <div class="review-actions">
+                <button id="editBtn" class="btn-secondary" type="button">Edit Ingredient List</button>
+                <button id="confirmBtn" class="btn-primary" type="button">Confirm Ingredients</button>
+                <button id="clearBtn" class="btn-danger" type="button">Clear</button>
+            </div>
+
+            <!-- Edit Panel -->
+            <div id="editPanel" class="edit-panel" style="display: none;">
+                <h3>Edit Ingredient List</h3>
+                <p class="hint">Remove wrong detections and add missing ingredients manually.</p>
+
+                <div id="editableIngredientsList" class="editable-ingredients-list">
+                    <!-- populated by JS -->
+                </div>
+
+                <div class="manual-add-row">
+                    <input
+                        id="manualIngredientInput"
+                        type="text"
+                        placeholder="Type missing ingredient, e.g. tomato"
+                        autocomplete="off"
+                    >
+                    <button id="addIngredientBtn" class="btn-secondary" type="button">Add</button>
+                </div>
+
+                <div class="edit-actions">
+                    <button id="saveEditBtn" class="btn-primary" type="button">Save Edits</button>
+                    <button id="cancelEditBtn" class="btn-outline" type="button">Cancel</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Results -->
+         <!-- Almost There Section -->
+        <section id="almostThereSection" class="almost-there-section" style="display: none;">
+            <div class="almost-there-header">
+                <h2>🛒 Almost There!</h2>
+                <p class="almost-there-subtitle">You're just 1–2 ingredients away from making these recipes</p>
+            </div>
+            <div id="almostThereGrid" class="almost-there-grid">
+                <!-- populated by JS -->
+            </div>
+        </section>
+
+        <!-- Shopping List Section -->
+        <section id="shoppingListSection" class="shopping-list-section" style="display: none;">
+            <div class="shopping-list-header">
+                <h2>🛍️ Your Shopping List</h2>
+                <p class="shopping-list-subtitle">Missing ingredients from your Almost There recipes — all in one place</p>
+            </div>
+
+            <div id="shoppingListItems" class="shopping-list-items">
+                <!-- populated by JS -->
+            </div>
+
+            <div class="manual-add-row" style="margin-top: 1rem;">
+                <input
+                    id="shoppingListInput"
+                    type="text"
+                    placeholder="Add an item manually, e.g. butter"
+                    autocomplete="off"
+                >
+                <button id="addShoppingItemBtn" class="btn-secondary" type="button">Add Item</button>
+            </div>
+
+            <div class="shopping-list-actions">
+                <button id="printShoppingListBtn" class="btn-primary" type="button">🖨️ Print List</button>
+                <button id="downloadShoppingListBtn" class="btn-secondary" type="button">⬇️ Download .txt</button>
+                <button id="clearShoppingListBtn" class="btn-danger" type="button">Clear List</button>
+            </div>
+        </section>
+
+        <!-- Filters Section -->
+        <section class="filters-section">
+            <h2>Filter Recipes</h2>
+            <div class="search-bar-wrapper">
+                <input 
+                     type="text" 
+                     id="recipeSearch" 
+                     placeholder="Search by recipe name, ingredient or cuisine..."
+                     autocomplete="off"
+                >
+            </div>
+            <div class="filters">
+                <div class="filter-group">
+                    <label for="dietaryFilter">Dietary:</label>
+                    <select id="dietaryFilter">
+                        <option value="">All</option>
+                        <option value="vegetarian">Vegetarian</option>
+                        <option value="vegan">Vegan</option>
+                        <option value="halal">Halal</option>
+                        <option value="non-halal">Non-Halal</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="timeFilter">Prep Time:</label>
+                    <select id="timeFilter">
+                        <option value="">All</option>
+                        <option value="quick">Quick (≤30 min)</option>
+                        <option value="medium">Medium (31-60 min)</option>
+                        <option value="long">Long (>60 min)</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="cuisineFilter">Cuisine:</label>
+                    <select id="cuisineFilter">
+                        <option value="">All</option>
+                        <option value="Malay">Malay</option>
+                        <option value="Chinese">Chinese</option>
+                        <option value="Indian">Indian</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="difficultyFilter">Difficulty:</label>
+                    <select id="difficultyFilter">
+                        <option value="">All</option>
+                        <option value="easy">Easy</option>
+                        <option value="medium">Medium</option>
+                        <option value="hard">Hard</option>
+                    </select>
+                </div>
+
+                <button id="applyFiltersBtn" class="btn-primary" type="button">Apply Filters</button>
+            </div>
+        </section>
+
+        <section class="results-section">
+            <div class="results-header">
+                <h2>Recommended Recipes</h2>
+                <p id="recipeCount" class="results-count">Waiting for ingredient confirmation...</p>
+            </div>
+
+            <div id="loadingIndicator" class="loading" style="display: none;">
+                <p>🔄 Finding recipes...</p>
+            </div>
+
+            <div id="errorMessage" class="error-message" style="display: none;">
+                <p>⚠️ <span id="errorText"></span></p>
+            </div>
+
+            <div id="recipeGrid" class="recipes-grid" style="display: none;">
+                <!-- recipe cards -->
+            </div>
+
+            <div id="noResults" class="no-results" style="display: none;">
+                <p>😕 No recipes match your criteria</p>
+                <p class="hint">Try adjusting your filters or ingredients</p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Smart Recipee</p>
+        </div>
+    </footer>
+
+    <script src="js/browse.js"></script>
+</body>
+</html>

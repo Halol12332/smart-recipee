@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Favourites & History - Smart Recipee</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-top">
+                <div>
+                    <h1>Smart Recipee</h1>
+                    <p class="subtitle">Your Trustful Recipe Recommender</p>
+                </div>
+                <nav class="header-nav">
+                    <a href="index.html" class="nav-link">🏠 Home</a>
+                    <a href="browse.html" class="nav-link">🍽️ Recipes</a>
+                    <a href="history.html" class="nav-link active">❤️ Favourites & History</a>
+                    <a href="meal-planner.html" class="nav-link">📅 Meal Planner</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="history-page">
+
+            <!-- Tabs -->
+            <div class="history-tabs">
+                <button class="history-tab active" id="tabFavourites" type="button">
+                    ❤️ Favourites
+                </button>
+                <button class="history-tab" id="tabHistory" type="button">
+                    🍳 Cooked History
+                </button>
+            </div>
+
+            <!-- Favourites Panel -->
+            <div id="panelFavourites" class="history-panel">
+                <div class="history-panel-header">
+                    <h2>Your Favourite Recipes</h2>
+                    <button id="clearFavouritesBtn" class="btn-danger-small" type="button">Clear All</button>
+                </div>
+                <div id="favouritesList" class="history-grid">
+                    <!-- populated by JS -->
+                </div>
+            </div>
+
+            <!-- History Panel -->
+            <div id="panelHistory" class="history-panel" style="display: none;">
+                <div class="history-panel-header">
+                    <h2>Recipes You've Cooked</h2>
+                    <button id="clearHistoryBtn" class="btn-danger-small" type="button">Clear All</button>
+                </div>
+                <div id="historyList" class="history-grid">
+                    <!-- populated by JS -->
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Smart Recipee</p>
+        </div>
+    </footer>
+
+    <script src="js/history.js"></script>
+</body>
+</html>
