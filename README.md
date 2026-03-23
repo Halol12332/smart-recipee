@@ -34,6 +34,7 @@ smart_recipee_v2/
 │
 ├── README.md                 # Project documentation
 └── requirements.txt          # Python dependencies
+```
 🚀 Getting Started
 Prerequisites
 Ensure you have Python 3.9+ installed.
@@ -41,20 +42,20 @@ Ensure you have Python 3.9+ installed.
 Installation
 Clone the repository:
 
-Bash
+```Bash
 git clone [https://github.com/YOUR-USERNAME/smart-recipee-web.git](https://github.com/YOUR-USERNAME/smart-recipee-web.git)
 cd smart-recipee-web
+```
 Install the required dependencies:
 
-Bash
+```Bash
 pip install -r requirements.txt
 Place your trained model weights (best.pt) inside the backend/models/ directory.
-
+```
 Running the Application
 Start the main Flask backend:
 
-Bash
+```Bash
 python backend/app.py
 (The server will typically run on http://127.0.0.1:5000)
-
 ```
