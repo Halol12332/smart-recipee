@@ -43,14 +43,13 @@ Installation
 Clone the repository:
 
 ```Bash
-git clone [https://github.com/YOUR-USERNAME/smart-recipee-web.git](https://github.com/YOUR-USERNAME/smart-recipee-web.git)
-cd smart-recipee-web
+git clone https://github.com/Halol12332/smart-recipee.git
+cd smart-recipee
 ```
 Install the required dependencies:
 
 ```Bash
 pip install -r requirements.txt
-Place your trained model weights (best.pt) inside the backend/models/ directory.
 ```
 Running the Application
 Start the main Flask backend:
