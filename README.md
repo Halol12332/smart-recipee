@@ -57,9 +57,4 @@ Bash
 python backend/app.py
 (The server will typically run on http://127.0.0.1:5000)
 
-
-***
-
-Now that both of your repositories are perfectly structured and safely backed up to GitHub, you are in a fantastic spot for your FYP presentation. 
-
-Would you like me to dive into that Python integration script so we can officially connect your RT-DETR
+```
