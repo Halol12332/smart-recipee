@@ -16,8 +16,8 @@ __pycache__/
 # 3. Model Weights
 # ==========================================
 # Keeps the repository lightweight by ignoring heavy model files
-backend/models/*.pt
-backend/models/*.pth
+# backend/models/*.pt
+# backend/models/*.pth
 
 # ==========================================
 # 4. User Uploads & Inference Outputs
