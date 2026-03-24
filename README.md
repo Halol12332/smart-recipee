@@ -58,3 +58,9 @@ Start the main Flask backend:
 python backend/app.py
 (The server will typically run on http://127.0.0.1:5000)
 ```
+Then create new terminal, and run the frontend:
+```Bash
+cd frontend
+python -m http.server 8000
+```
+Once that is running, just open your web browser and go to http://localhost:8000.

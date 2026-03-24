@@ -11,10 +11,16 @@ const API_BASE_URL = 'http://127.0.0.1:5000/api';
 // ============================================
 
 let USER_INGREDIENTS = [];
-let DETECTION_DATA = null;
 let CONFIRMED_INGREDIENTS = [];
+let DETECTION_DATA = null;
 let ALL_RECIPES = [];
 let SHOPPING_LIST = [];
+
+// NEW: Zoom state
+let currentZoom = 1;
+const ZOOM_STEP = 0.2;
+const MAX_ZOOM = 3.0;
+const MIN_ZOOM = 0.5;
 
 // ============================================
 // DOM ELEMENTS
@@ -23,6 +29,12 @@ let SHOPPING_LIST = [];
 const imageUpload = document.getElementById('imageUpload');
 const detectBtn = document.getElementById('detectBtn');
 const uploadStatus = document.getElementById('uploadStatus');
+
+const ingredientsSection = document.getElementById('ingredientsSection');
+
+const zoomInBtn = document.getElementById('zoomInBtn');
+const zoomOutBtn = document.getElementById('zoomOutBtn');
+const zoomResetBtn = document.getElementById('zoomResetBtn');
 
 const ingredientsList = document.getElementById('ingredientsList');
 const recipeGrid = document.getElementById('recipeGrid');
@@ -74,6 +86,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (detectBtn) {
         detectBtn.addEventListener('click', detectFromUpload);
+    }
+
+    if (zoomInBtn) {
+        zoomInBtn.addEventListener('click', () => applyZoom(ZOOM_STEP));
+    }
+    if (zoomOutBtn) {
+        zoomOutBtn.addEventListener('click', () => applyZoom(-ZOOM_STEP));
+    }
+    if (zoomResetBtn) {
+        zoomResetBtn.addEventListener('click', resetZoom);
     }
    
     if (applyFiltersBtn) {
@@ -181,9 +203,16 @@ async function detectFromUpload() {
         }
 
         DETECTION_DATA = payload.data;
-        USER_INGREDIENTS = extractIngredients(DETECTION_DATA);
+        
+        // NEW: Turn the detected list into OBJECTS for stable editing
+        USER_INGREDIENTS = DETECTION_DATA.ingredients.map(ing => ({
+            name: normalizeIngredient(ing.name),
+            original_name: normalizeIngredient(ing.name),
+            detection_id: ing.detection_id,
+            count: ing.count || 1
+        }));
+        
         CONFIRMED_INGREDIENTS = [];
-
         persistDetectionState();
 
         if (uploadStatus) {
@@ -218,23 +247,11 @@ function displayDetectionPreview(data) {
     annotatedPreviewImage.src = data.annotated_image_url;
     annotatedPreviewImage.alt = 'Detected ingredients with bounding boxes';
 
-    const detections = Array.isArray(data.detections) ? data.detections : [];
-
-    if (detections.length === 0) {
-        detectionSummary.innerHTML = '<p>No detections found.</p>';
-    } else {
-        detectionSummary.innerHTML = `
-            <h3>Detected Objects</h3>
-            <div class="detection-list">
-                ${detections.map(det => `
-                    <div class="detection-row">
-                        <span class="detection-name">${escapeHtml(det.name)}</span>
-                        <span class="detection-confidence">${Math.round(det.confidence * 100)}%</span>
-                    </div>
-                `).join('')}
-            </div>
-        `;
-    }
+    // 1. Completely empty the old list
+    detectionSummary.innerHTML = ''; 
+    
+    // 2. NEW: Explicitly hide the container so it doesn't take up space on the screen
+    detectionSummary.style.display = 'none';
 
     detectionPreview.style.display = 'block';
 }
@@ -300,8 +317,9 @@ function restoreSavedState() {
         if (ingredientsToShow.length > 0) {
             displayIngredients(ingredientsToShow);
 
-            if (reviewSection) {
-                reviewSection.style.display = 'block';
+            // UPDATED: Unhide the new unified section instead of the old one
+            if (typeof ingredientsSection !== 'undefined' && ingredientsSection) {
+                ingredientsSection.style.display = 'block';
             }
 
             if (reviewStatus) {
@@ -323,6 +341,12 @@ function restoreSavedState() {
             }
         }
 
+        // NEW: If you already confirmed ingredients before leaving the page, 
+        // auto-fetch the recipes so you don't have to click "Confirm" again!
+        if (CONFIRMED_INGREDIENTS.length > 0) {
+            fetchRecipes();
+        }
+
     } catch (error) {
         console.error('Failed to restore saved state:', error);
     }
@@ -333,21 +357,16 @@ function restoreSavedState() {
 // ============================================
 
 function showReviewSection() {
-    if (reviewSection) {
-        reviewSection.style.display = 'block';
+    if (ingredientsSection) {
+        ingredientsSection.style.display = 'block';
     }
 
     if (reviewStatus) {
-        reviewStatus.textContent = 'Please review the detected ingredients. You can edit them before confirming.';
-    }
-
-    if (editPanel) {
-        editPanel.style.display = 'none';
+        reviewStatus.textContent = 'Review your detected ingredients. Change or remove items, then confirm to get recipes.';
     }
 
     resetRecipeArea();
 }
-
 function confirmIngredients() {
     if (!USER_INGREDIENTS || USER_INGREDIENTS.length === 0) {
         if (reviewStatus) {
@@ -413,8 +432,16 @@ function renderEditableIngredients() {
         const item = document.createElement('div');
         item.className = 'editable-ingredient-item';
 
+        // NEW: Add warning text and color in the edit panel
+        const lowerIng = ingredient.toLowerCase();
+        const displayName = lowerIng.includes('rotten') 
+            ? `⚠️ ${escapeHtml(ingredient)} <span style="font-size:0.85em; color:#999;">(Will be skipped)</span>`
+            : escapeHtml(ingredient);
+
+        const textColor = lowerIng.includes('rotten') ? 'color: #c62828; font-weight: 500;' : '';
+
         item.innerHTML = `
-            <span class="editable-ingredient-name">${escapeHtml(ingredient)}</span>
+            <span class="editable-ingredient-name" style="${textColor}">${displayName}</span>
             <button type="button" class="btn-remove-ingredient" data-index="${index}">
                 Remove
             </button>
@@ -457,7 +484,8 @@ function addManualIngredient() {
         return;
     }
 
-    if (USER_INGREDIENTS.includes(value)) {
+    // Deduplication check: Check names
+    if (USER_INGREDIENTS.some(i => normalizeIngredient(i.name) === value)) {
         if (reviewStatus) {
             reviewStatus.textContent = `"${value}" is already in the ingredient list.`;
         }
@@ -465,20 +493,23 @@ function addManualIngredient() {
         return;
     }
 
-    USER_INGREDIENTS.push(value);
-    USER_INGREDIENTS = dedupeIngredients(USER_INGREDIENTS);
+    // NEW: Create a manual OBJECT. No det_id, so it will show a placeholder.
+    USER_INGREDIENTS.push({
+        name: value,
+        original_name: value,
+        detection_id: null, // No stable AI link for manual additions
+        count: 1
+    });
 
+    // ... continue as normal ...
     manualIngredientInput.value = '';
-
     persistDetectionState();
     displayIngredients(USER_INGREDIENTS);
-    renderEditableIngredients();
 
     if (reviewStatus) {
         reviewStatus.textContent = `"${value}" added. Save edits when done.`;
     }
 }
-
 function saveEdits() {
     USER_INGREDIENTS = dedupeIngredients(USER_INGREDIENTS);
     persistDetectionState();
@@ -491,25 +522,57 @@ function saveEdits() {
 }
 
 // ============================================
-// DISPLAY INGREDIENTS
+// DISPLAY INGREDIENTS (GRID VIEW WITH STABLE IDS)
 // ============================================
 
-function displayIngredients(ingredients = []) {
+function displayIngredients(ingredientObjects = []) {
     if (!ingredientsList) return;
-
     ingredientsList.innerHTML = '';
 
-    if (ingredients.length === 0) {
+    if (ingredientObjects.length === 0) {
         ingredientsList.innerHTML = '<p style="color: #999;">No ingredients detected</p>';
         return;
     }
 
-    ingredients.forEach(ingredient => {
-        const tag = document.createElement('span');
-        tag.className = 'ingredient-tag';
-        tag.textContent = ingredient;
-        ingredientsList.appendChild(tag);
+    const grid = document.createElement('div');
+    grid.className = 'ingredient-grid';
+
+    ingredientObjects.forEach((ingObj, index) => {
+        
+        // NEW & CRITICAL: Search for the detection data BY ITS STABLE ID, NOT ITS NAME!
+        const detItem = ingObj.detection_id 
+            ? DETECTION_DATA?.ingredients?.find(d => d.detection_id === ingObj.detection_id)
+            : null;
+        
+        const isRotten = ingObj.name.toLowerCase().includes('rotten');
+        const imgHtml = detItem?.crop_image_url 
+            ? `<img src="${detItem.crop_image_url}" class="ing-crop" alt="${ingObj.name}">` 
+            : `<div class="ing-placeholder">🍽️</div>`;
+            
+        const isManual = !detItem; // If there's no det_id, it must be a manual add
+        const confText = isManual ? 'Manually Added' : `${Math.round(detItem.confidence * 100)}% Confidence`;
+
+        // Grab the count from the MUTABLE object (or use 1)
+        const countText = (ingObj.count && ingObj.count > 1) ? ` <span style="color:#888; font-size:0.85em;">(x${ingObj.count})</span>` : '';
+
+        const card = document.createElement('div');
+        card.className = `ing-card ${isRotten ? 'rotten' : ''}`;
+
+        card.innerHTML = `
+            ${imgHtml}
+            <div class="ing-name" style="${isRotten ? 'color: #c62828;' : ''}">
+                ${isRotten ? '⚠️ ' : ''}${escapeHtml(ingObj.name)}${countText}
+            </div>
+            <div class="ing-conf">${confText}</div>
+            <div class="ing-actions">
+                <button class="ing-btn btn-change" onclick="changeIngredientGrid(${index})">Change</button>
+                <button class="ing-btn btn-remove" onclick="removeIngredientGrid(${index})">Remove</button>
+            </div>
+        `;
+        grid.appendChild(card);
     });
+
+    ingredientsList.appendChild(grid);
 }
 
 // ============================================
@@ -562,18 +625,24 @@ async function fetchRecipes(filters = {}) {
     showLoading();
 
     try {
-        const ingredientsToUse = CONFIRMED_INGREDIENTS.length > 0
+        const activeIngredients = CONFIRMED_INGREDIENTS.length > 0
             ? CONFIRMED_INGREDIENTS
             : USER_INGREDIENTS;
 
+        // NEW: Handle objects correctly by extracting the '.name' property first
+        const safeIngredients = activeIngredients
+            .map(item => typeof item === 'string' ? item : item.name) // Failsafe extraction
+            .filter(name => !name.toLowerCase().includes('rotten'))
+            .map(name => name.toLowerCase().replace('fresh ', '').trim());
+
         const payload = {
-            ingredients: ingredientsToUse,
+            ingredients: dedupeIngredients(safeIngredients), 
             method: 'normalized',
             min_match: 0,
             filters: filters
         };
 
-        console.log('Fetching recipes with payload:', payload);
+        console.log('Fetching recipes with clean payload:', payload);
 
         const response = await fetch(`${API_BASE_URL}/recommend`, {
             method: 'POST',
@@ -1036,14 +1105,13 @@ function resetDetectionFlow(clearUploadStatus = true) {
 
     displayIngredients([]);
 
-    if (reviewSection) reviewSection.style.display = 'none';
-    if (editPanel) editPanel.style.display = 'none';
-    if (editableIngredientsList) editableIngredientsList.innerHTML = '';
+    // Hide the unified section when resetting
+    if (ingredientsSection) ingredientsSection.style.display = 'none'; 
+    
     if (manualIngredientInput) manualIngredientInput.value = '';
     if (reviewStatus) reviewStatus.textContent = '';
     if (detectionPreview) detectionPreview.style.display = 'none';
     if (annotatedPreviewImage) annotatedPreviewImage.src = '';
-    if (detectionSummary) detectionSummary.innerHTML = '';
 
     if (clearUploadStatus && uploadStatus) {
         uploadStatus.textContent = '';
@@ -1123,3 +1191,119 @@ function escapeHtml(value) {
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&#39;');
 }
+
+// ============================================
+// IMAGE ZOOM HELPERS
+// ============================================
+
+function applyZoom(step) {
+    currentZoom += step;
+    
+    // Enforce limits so the user doesn't zoom into infinity or shrink it to nothing
+    if (currentZoom > MAX_ZOOM) currentZoom = MAX_ZOOM;
+    if (currentZoom < MIN_ZOOM) currentZoom = MIN_ZOOM;
+    
+    updateZoomStyle();
+}
+
+function resetZoom() {
+    currentZoom = 1;
+    updateZoomStyle();
+}
+
+function updateZoomStyle() {
+    if (annotatedPreviewImage) {
+        annotatedPreviewImage.style.transform = `scale(${currentZoom})`;
+    }
+}
+
+// ============================================
+// DISPLAY INGREDIENTS (GRID VIEW WITH STABLE IDS)
+// ============================================
+
+function displayIngredients(ingredientObjects = []) {
+    if (!ingredientsList) return;
+    ingredientsList.innerHTML = '';
+
+    if (ingredientObjects.length === 0) {
+        ingredientsList.innerHTML = '<p style="color: #999;">No ingredients detected</p>';
+        return;
+    }
+
+    const grid = document.createElement('div');
+    grid.className = 'ingredient-grid';
+
+    ingredientObjects.forEach((ingObj, index) => {
+        // Failsafe: if it's an old string from cache, convert it to an object temporarily
+        if (typeof ingObj === 'string') {
+            ingObj = { name: ingObj, detection_id: null, count: 1 };
+        }
+
+        const detItem = ingObj.detection_id 
+            ? DETECTION_DATA?.ingredients?.find(d => d.detection_id === ingObj.detection_id)
+            : null;
+        
+        const isRotten = ingObj.name.toLowerCase().includes('rotten');
+        const imgHtml = detItem?.crop_image_url 
+            ? `<img src="${detItem.crop_image_url}" class="ing-crop" alt="${ingObj.name}">` 
+            : `<div class="ing-placeholder">🍽️</div>`;
+            
+        const isManual = !detItem; 
+        const confText = isManual ? 'Manually Added' : `${Math.round(detItem.confidence * 100)}% Confidence`;
+
+        const countText = (ingObj.count && ingObj.count > 1) ? ` <span style="color:#888; font-size:0.85em;">(x${ingObj.count})</span>` : '';
+
+        const card = document.createElement('div');
+        card.className = `ing-card ${isRotten ? 'rotten' : ''}`;
+
+        card.innerHTML = `
+            ${imgHtml}
+            <div class="ing-name" style="${isRotten ? 'color: #c62828;' : ''}">
+                ${isRotten ? '⚠️ ' : ''}${escapeHtml(ingObj.name)}${countText}
+            </div>
+            <div class="ing-conf">${confText}</div>
+            <div class="ing-actions">
+                <button class="ing-btn btn-change" onclick="changeIngredientGrid(${index})">Change</button>
+                <button class="ing-btn btn-remove" onclick="removeIngredientGrid(${index})">Remove</button>
+            </div>
+        `;
+        grid.appendChild(card);
+    });
+
+    ingredientsList.appendChild(grid);
+}
+
+// Helper function to handle inline changes
+window.changeIngredientGrid = function(index) {
+    const ingObj = USER_INGREDIENTS[index];
+    const oldName = ingObj.name;
+    const newName = prompt(`Change "${oldName}" to:`, oldName);
+    
+    if (newName && newName.trim() !== "" && newName.trim() !== oldName) {
+        const normalized = normalizeIngredient(newName);
+        
+        // Deduplication check: Check names, not IDs
+        if (USER_INGREDIENTS.some(i => normalizeIngredient(i.name) === normalized)) {
+            alert(`"${normalized}" is already in the list!`);
+        } else {
+            // NEW: Update ONLY THE NAME on that specific object.
+            // Crucially, ingObj.detection_id stays the SAME.
+            ingObj.name = normalized; 
+            
+            persistDetectionState();
+            displayIngredients(USER_INGREDIENTS);
+            
+            if (reviewStatus) reviewStatus.textContent = `Changed "${oldName}" to "${normalized}". Image link preserved.`;
+        }
+    }
+};
+
+// Helper function to handle direct removal from the grid
+window.removeIngredientGrid = function(index) {
+    const ingObj = USER_INGREDIENTS[index];
+    USER_INGREDIENTS.splice(index, 1);
+    persistDetectionState();
+    displayIngredients(USER_INGREDIENTS);
+    
+    if (reviewStatus) reviewStatus.textContent = `"${ingObj.name}" removed.`;
+};

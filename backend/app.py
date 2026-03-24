@@ -236,6 +236,11 @@ def detect_ingredients():
         if result.get('annotated_image'):
             result['annotated_image_url'] = f'http://127.0.0.1:5000/uploads/{result["annotated_image"]}'
 
+        # NEW: Construct URLs for every cropped ingredient
+        for ing in result.get('ingredients', []):
+            if ing.get('crop_image'):
+                ing['crop_image_url'] = f'http://127.0.0.1:5000/uploads/{ing["crop_image"]}'
+
         result['original_image_url'] = f'http://127.0.0.1:5000/uploads/{filename}'
 
         return jsonify({'success': True, 'data': result}), 200

@@ -41,53 +41,47 @@
         <section class="preview-section">
             <h2>Detection Preview</h2>
             <div id="detectionPreview" class="detection-preview" style="display: none;">
-                <img id="annotatedPreviewImage" class="annotated-preview-image" alt="Annotated detection result">
+                
+                <div class="zoom-controls" style="text-align: right; margin-bottom: 8px;">
+                    <button type="button" id="zoomOutBtn" class="btn-secondary" style="padding: 5px 10px; font-size: 14px;">➖</button>
+                    <button type="button" id="zoomResetBtn" class="btn-outline" style="padding: 5px 10px; font-size: 14px;">Reset</button>
+                    <button type="button" id="zoomInBtn" class="btn-secondary" style="padding: 5px 10px; font-size: 14px;">➕</button>
+                </div>
+
+                <div id="imageZoomContainer" style="overflow: auto; max-height: 600px; border: 1px solid #ede9fe; border-radius: 8px; text-align: center;">
+                    <img id="annotatedPreviewImage" class="annotated-preview-image" alt="Annotated detection result" style="transform-origin: top center; transition: transform 0.2s ease;">
+                </div>
+
+                <div style="text-align: center; margin-top: 10px; font-weight: bold;">
+                    <span style="color: #2e7d32;">🟩 Fresh / Normal</span> &nbsp;&nbsp;|&nbsp;&nbsp; 
+                    <span style="color: #d32f2f;">🟥 Spoiled / Rotten</span>
+                </div>
                 <div id="detectionSummary" class="detection-summary"></div>
             </div>
         </section>
 
-        <!-- Ingredients Display -->
-        <section class="ingredients-section">
+        <section id="ingredientsSection" class="ingredients-section" style="display: none;">
             <h2>Your Ingredients</h2>
+            <p id="reviewStatus" class="review-status" style="margin-bottom: 1rem; color: #666;">
+                Review your detected ingredients. Change or remove items, then confirm to get recipes.
+            </p>
+
             <div id="ingredientsList" class="ingredients-list">
-                <!-- populated by JS -->
-            </div>
-        </section>
+                </div>
 
-        <!-- Review / Confirm Section -->
-        <section id="reviewSection" class="review-section" style="display: none;">
-            <h2>Review Detected Ingredients</h2>
-            <p id="reviewStatus" class="review-status"></p>
-
-            <div class="review-actions">
-                <button id="editBtn" class="btn-secondary" type="button">Edit Ingredient List</button>
-                <button id="confirmBtn" class="btn-primary" type="button">Confirm Ingredients</button>
-                <button id="clearBtn" class="btn-danger" type="button">Clear</button>
+            <div class="manual-add-row" style="margin-top: 1.5rem; max-width: 600px; margin-left: auto; margin-right: auto;">
+                <input
+                    id="manualIngredientInput"
+                    type="text"
+                    placeholder="Type missing ingredient, e.g. tomato"
+                    autocomplete="off"
+                >
+                <button id="addIngredientBtn" class="btn-secondary" type="button">Add Item</button>
             </div>
 
-            <!-- Edit Panel -->
-            <div id="editPanel" class="edit-panel" style="display: none;">
-                <h3>Edit Ingredient List</h3>
-                <p class="hint">Remove wrong detections and add missing ingredients manually.</p>
-
-                <div id="editableIngredientsList" class="editable-ingredients-list">
-                    <!-- populated by JS -->
-                </div>
-
-                <div class="manual-add-row">
-                    <input
-                        id="manualIngredientInput"
-                        type="text"
-                        placeholder="Type missing ingredient, e.g. tomato"
-                        autocomplete="off"
-                    >
-                    <button id="addIngredientBtn" class="btn-secondary" type="button">Add</button>
-                </div>
-
-                <div class="edit-actions">
-                    <button id="saveEditBtn" class="btn-primary" type="button">Save Edits</button>
-                    <button id="cancelEditBtn" class="btn-outline" type="button">Cancel</button>
-                </div>
+            <div class="review-actions" style="margin-top: 1.5rem; justify-content: center; gap: 1rem;">
+                <button id="confirmBtn" class="btn-primary" type="button" style="padding: 0.8rem 2rem; font-size: 1.1rem;">✨ Confirm Ingredients</button>
+                <button id="clearBtn" class="btn-danger" type="button" style="padding: 0.8rem 2rem; font-size: 1.1rem;">🗑️ Clear All</button>
             </div>
         </section>
 

@@ -2183,3 +2183,101 @@ footer p {
 footer {
     background: #1a1a2e;
 }
+
+/* ============================================
+   INGREDIENT IMAGE GRID (UPDATED)
+================================================ */
+.ingredients-list {
+    max-height: 450px;     /* Limits the height */
+    overflow-y: auto;      /* Adds the vertical scrollbar */
+    padding-right: 10px;   /* Adds breathing room for the scrollbar */
+}
+.ingredient-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* Forces exactly 4 columns */
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.ing-card {
+    background: #ffffff;
+    border: 1px solid #ede9fe;
+    border-radius: 12px;
+    padding: 1rem;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: transform 0.2s;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.ing-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.05);
+}
+
+.ing-card.rotten {
+    background-color: #fffafa;
+    border-color: #ffcdd2;
+}
+
+/* Adjusted height to look proportional in 4 columns */
+.ing-crop {
+    width: 100%;
+    height: 120px; 
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 0.75rem;
+    border: 1px solid #f0f0f0;
+}
+
+.ing-placeholder {
+    width: 100%;
+    height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    background: #f7f6ff;
+    border-radius: 8px;
+    margin-bottom: 0.75rem;
+}
+
+.ing-name {
+    font-weight: 600;
+    color: #1a1a2e;
+    font-size: 1rem;
+    text-transform: capitalize;
+    margin-bottom: 0.25rem;
+}
+
+.ing-conf {
+    font-size: 0.8rem;
+    color: #888;
+    margin-bottom: 1rem;
+}
+
+.ing-actions {
+    display: flex;
+    gap: 0.5rem;
+    width: 100%;
+    margin-top: auto;
+}
+
+.ing-btn {
+    flex: 1;
+    padding: 0.5rem 0;
+    font-size: 0.8rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: opacity 0.2s;
+}
+
+.ing-btn:hover { opacity: 0.8; }
+.btn-change { background: #f1f5f9; color: #475569; }
+.btn-remove { background: #fee2e2; color: #dc2626; }
