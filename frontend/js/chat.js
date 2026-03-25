@@ -66,7 +66,10 @@ function renderContextBar(ingredients) {
     ingredients.slice(0, 8).forEach(ing => {
         const tag = document.createElement('span');
         tag.className = 'chat-context-tag';
-        tag.textContent = ing;
+        
+        // FIXED: Extract the name property from the object (with a fallback just in case)
+        tag.textContent = ing.name || ing; 
+        
         container.appendChild(tag);
     });
 

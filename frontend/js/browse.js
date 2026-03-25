@@ -369,9 +369,7 @@ function showReviewSection() {
 }
 function confirmIngredients() {
     if (!USER_INGREDIENTS || USER_INGREDIENTS.length === 0) {
-        if (reviewStatus) {
-            reviewStatus.textContent = 'No ingredients to confirm yet.';
-        }
+        if (reviewStatus) reviewStatus.textContent = 'No ingredients to confirm yet.';
         return;
     }
 
@@ -379,7 +377,9 @@ function confirmIngredients() {
     persistDetectionState();
 
     if (reviewStatus) {
-        reviewStatus.textContent = `Confirmed ${CONFIRMED_INGREDIENTS.length} ingredient(s). Fetching recipe recommendations...`;
+        // NEW: Add a clear, green success message!
+        reviewStatus.innerHTML = `✅ <strong>Success! Confirmed ${CONFIRMED_INGREDIENTS.length} ingredient(s).</strong> Finding recipes...`;
+        reviewStatus.style.color = '#2e7d32'; 
     }
 
     fetchRecipes();

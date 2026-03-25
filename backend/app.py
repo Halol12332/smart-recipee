@@ -8,9 +8,11 @@ from flask_cors import CORS
 import json
 import os
 import time
+from werkzeug.utils import secure_filename
+
+# NEW: Added from your friend's module for the Chatbot
 from groq import Groq
 from dotenv import load_dotenv
-from werkzeug.utils import secure_filename
 
 load_dotenv()
 
@@ -240,6 +242,11 @@ def detect_ingredients():
         if result.get('annotated_image'):
             result['annotated_image_url'] = f'http://127.0.0.1:5000/uploads/{result["annotated_image"]}'
 
+        # YOUR PERFECT CODE: Construct URLs for every cropped ingredient
+        for ing in result.get('ingredients', []):
+            if ing.get('crop_image'):
+                ing['crop_image_url'] = f'http://127.0.0.1:5000/uploads/{ing["crop_image"]}'
+
         result['original_image_url'] = f'http://127.0.0.1:5000/uploads/{filename}'
 
         return jsonify({'success': True, 'data': result}), 200
@@ -393,7 +400,7 @@ def submit_rating(recipe_id):
         return jsonify({'success': False, 'error': str(e)}), 500
 
 # ============================================================
-# CHAT ENDPOINT
+# CHAT ENDPOINT (NEW MODULE)
 # ============================================================
 
 @app.route('/api/chat', methods=['POST'])
@@ -403,6 +410,14 @@ def chat():
         user_message = body.get('message', '').strip()
         ingredients = body.get('ingredients', [])
         recipes_context = body.get('recipes', [])
+        # --- NEW: Safely extract names whether it's an object or string ---
+        safe_ingredients = []
+        for item in ingredients:
+            if isinstance(item, dict) and 'name' in item:
+                safe_ingredients.append(item['name'])
+            elif isinstance(item, str):
+                safe_ingredients.append(item)
+        # ------------------------------------------------------------------
         history = body.get('history', [])
 
         if not user_message:
@@ -418,8 +433,8 @@ def chat():
                 recipe_context += f"  Instructions: {' | '.join(r.get('instructions', []))}\n\n"
 
         ingredient_context = ''
-        if ingredients:
-            ingredient_context = f"The user currently has these ingredients: {', '.join(ingredients)}.\n"
+        if safe_ingredients:
+            ingredient_context = f"The user currently has these ingredients: {', '.join(safe_ingredients)}.\n"
 
         system_prompt = f"""You are a friendly and knowledgeable Malaysian culinary assistant for Smart Recipee, a food waste reduction app.
 
@@ -516,11 +531,13 @@ if __name__ == '__main__':
     print("Smart Recipee API Starting...")
     print(f"Loaded {len(recipes)} recipes from database")
     print("API Documentation:")
-    print("  GET  /api/health          - Health check")
-    print("  GET  /api/filters         - Get filter options")
-    print("  GET  /api/recipes         - Get all recipes")
-    print("  GET  /api/recipe/<id>     - Get recipe by ID")
-    print("  POST /api/recommend       - Get recommendations")
+    print("  GET  /api/health         - Health check")
+    print("  GET  /api/filters        - Get filter options")
+    print("  GET  /api/recipes        - Get all recipes")
+    print("  GET  /api/recipe/<id>    - Get recipe by ID")
+    print("  POST /api/recommend      - Get recommendations")
+    print("  POST /api/detect         - Upload image for detection")
+    print("  POST /api/chat           - Chat with AI assistant") # NEW: Added documentation
     print("=" * 60)
     
     # Run the Flask app
