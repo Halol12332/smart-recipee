@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Culinary Assistant - Smart Recipee</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .chat-page {
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 80px);
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 1.5rem 1.5rem 0;
+            gap: 1rem;
+        }
+
+        .chat-page-header {
+            flex-shrink: 0;
+        }
+
+        .chat-page-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            color: #333;
+            margin-bottom: 0.3rem;
+        }
+
+        .chat-page-subtitle {
+            font-size: 0.9rem;
+            color: #888;
+        }
+
+        .chat-context-bar {
+            background: #f0f4ff;
+            border: 1px solid #dde0ff;
+            border-radius: 10px;
+            padding: 0.75rem 1.25rem;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .chat-context-label {
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: #667eea;
+            white-space: nowrap;
+        }
+
+        .chat-context-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+        }
+
+        .chat-context-tag {
+            background: white;
+            border: 1px solid #dde0ff;
+            color: #444;
+            font-size: 0.78rem;
+            padding: 0.25rem 0.6rem;
+            border-radius: 100px;
+            font-weight: 500;
+        }
+
+        .chat-context-none {
+            font-size: 0.82rem;
+            color: #aaa;
+            font-style: italic;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            padding: 0.5rem 0;
+            min-height: 0;
+        }
+
+        .chat-message {
+            display: flex;
+            gap: 0.75rem;
+            max-width: 80%;
+            animation: messageIn 0.2s ease;
+        }
+
+        @keyframes messageIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .chat-message.user {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+
+        .chat-message.bot {
+            align-self: flex-start;
+        }
+
+        .chat-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+
+        .chat-message.bot .chat-avatar {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+
+        .chat-message.user .chat-avatar {
+            background: #e8f5e9;
+        }
+
+        .chat-bubble {
+            padding: 0.85rem 1.1rem;
+            border-radius: 14px;
+            font-size: 0.92rem;
+            line-height: 1.6;
+            max-width: 100%;
+        }
+
+        .chat-message.bot .chat-bubble {
+            background: white;
+            color: #333;
+            border: 1px solid #eee;
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+        }
+
+        .chat-message.user .chat-bubble {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .chat-bubble p { margin-bottom: 0.5rem; }
+        .chat-bubble p:last-child { margin-bottom: 0; }
+        .chat-bubble ul, .chat-bubble ol {
+            padding-left: 1.25rem;
+            margin: 0.4rem 0;
+        }
+        .chat-bubble li { margin-bottom: 0.25rem; }
+        .chat-bubble strong { font-weight: 600; }
+
+        .chat-typing {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 0.85rem 1.1rem;
+            background: white;
+            border: 1px solid #eee;
+            border-radius: 14px;
+            border-bottom-left-radius: 4px;
+            width: fit-content;
+        }
+
+        .chat-typing span {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #aaa;
+            animation: typing 1.2s infinite;
+        }
+
+        .chat-typing span:nth-child(2) { animation-delay: 0.2s; }
+        .chat-typing span:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+            30% { transform: translateY(-6px); opacity: 1; }
+        }
+
+        .chat-input-area {
+            flex-shrink: 0;
+            padding: 1rem 0 1.5rem;
+            border-top: 1px solid #eee;
+        }
+
+        .chat-suggestions {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 0.75rem;
+        }
+
+        .chat-suggestion {
+            background: white;
+            border: 1.5px solid #dde0ff;
+            color: #667eea;
+            font-size: 0.8rem;
+            font-weight: 500;
+            padding: 0.35rem 0.85rem;
+            border-radius: 100px;
+            cursor: pointer;
+            transition: all 0.15s;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        .chat-suggestion:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .chat-input-row {
+            display: flex;
+            gap: 0.75rem;
+            align-items: flex-end;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 0.85rem 1.1rem;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-family: 'DM Sans', sans-serif;
+            resize: none;
+            line-height: 1.5;
+            max-height: 120px;
+            transition: border-color 0.2s;
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+        }
+
+        .chat-send-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            width: 48px;
+            height: 48px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chat-send-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102,126,234,0.4);
+        }
+
+        .chat-send-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        @media (max-width: 768px) {
+            .chat-page {
+                padding: 1rem 1rem 0;
+                height: calc(100vh - 70px);
+            }
+            .chat-message {
+                max-width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-top">
+                <div>
+                    <h1>Smart Recipee</h1>
+                    <p class="subtitle">Your Trustful Recipe Recommender</p>
+                </div>
+                <nav class="header-nav">
+                    <a href="index.html" class="nav-link">🏠 Home</a>
+                    <a href="browse.html" class="nav-link">🍽️ Recipes</a>
+                    <a href="history.html" class="nav-link">❤️ Favourites</a>
+                    <a href="meal-planner.html" class="nav-link">📅 Meal Planner</a>
+                    <a href="chat.html" class="nav-link active">🤖 Assistant</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main style="flex: 1; overflow: hidden;">
+        <div class="chat-page">
+            <div class="chat-page-header">
+                <h2 class="chat-page-title">🤖 Culinary Assistant</h2>
+                <p class="chat-page-subtitle">Ask me anything about cooking — I know your ingredients and recipes!</p>
+            </div>
+
+            <div class="chat-context-bar" id="chatContextBar">
+                <span class="chat-context-label">📦 Your ingredients:</span>
+                <div class="chat-context-tags" id="chatContextTags">
+                    <span class="chat-context-none">No ingredients detected yet — go to Recipes page first</span>
+                </div>
+            </div>
+
+            <div class="chat-messages" id="chatMessages"></div>
+
+            <div class="chat-input-area">
+                <div class="chat-suggestions" id="chatSuggestions">
+                    <button class="chat-suggestion" type="button">What can I cook right now?</button>
+                    <button class="chat-suggestion" type="button">Show me the easiest recipe</button>
+                    <button class="chat-suggestion" type="button">What am I missing for Nasi Lemak?</button>
+                    <button class="chat-suggestion" type="button">Suggest something quick</button>
+                </div>
+                <div class="chat-input-row">
+                    <textarea
+                        id="chatInput"
+                        class="chat-input"
+                        placeholder="Ask me about recipes, cooking tips, substitutions..."
+                        rows="1"
+                    ></textarea>
+                    <button id="chatSendBtn" class="chat-send-btn" type="button">➤</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="js/chat.js"></script>
+</body>
+</html>
