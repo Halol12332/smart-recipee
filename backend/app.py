@@ -8,7 +8,11 @@ from flask_cors import CORS
 import json
 import os
 import time
+from groq import Groq
+from dotenv import load_dotenv
 from werkzeug.utils import secure_filename
+
+load_dotenv()
 
 # Ingredient detection (YOLO) adapter
 from utils.detector import detect_ingredients_from_image
@@ -236,11 +240,6 @@ def detect_ingredients():
         if result.get('annotated_image'):
             result['annotated_image_url'] = f'http://127.0.0.1:5000/uploads/{result["annotated_image"]}'
 
-        # NEW: Construct URLs for every cropped ingredient
-        for ing in result.get('ingredients', []):
-            if ing.get('crop_image'):
-                ing['crop_image_url'] = f'http://127.0.0.1:5000/uploads/{ing["crop_image"]}'
-
         result['original_image_url'] = f'http://127.0.0.1:5000/uploads/{filename}'
 
         return jsonify({'success': True, 'data': result}), 200
@@ -391,6 +390,90 @@ def submit_rating(recipe_id):
         }), 201
 
     except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+# ============================================================
+# CHAT ENDPOINT
+# ============================================================
+
+@app.route('/api/chat', methods=['POST'])
+def chat():
+    try:
+        body = request.get_json()
+        user_message = body.get('message', '').strip()
+        ingredients = body.get('ingredients', [])
+        recipes_context = body.get('recipes', [])
+        history = body.get('history', [])
+
+        if not user_message:
+            return jsonify({'success': False, 'error': 'Message is required'}), 400
+
+        recipe_context = ''
+        if recipes_context:
+            top_recipes = recipes_context[:5]
+            recipe_context = 'Here are the top matched recipes for the user:\n\n'
+            for r in top_recipes:
+                recipe_context += f"- {r['name']} ({r['cuisine']}, {r['match_percentage']}% match)\n"
+                recipe_context += f"  Ingredients: {', '.join(i['name'] for i in r.get('ingredients', []))}\n"
+                recipe_context += f"  Instructions: {' | '.join(r.get('instructions', []))}\n\n"
+
+        ingredient_context = ''
+        if ingredients:
+            ingredient_context = f"The user currently has these ingredients: {', '.join(ingredients)}.\n"
+
+        system_prompt = f"""You are a friendly and knowledgeable Malaysian culinary assistant for Smart Recipee, a food waste reduction app.
+
+Your role is to help users cook delicious Malaysian, Chinese and Indian recipes using the ingredients they already have in their fridge.
+
+{ingredient_context}
+{recipe_context}
+
+Guidelines:
+- Always base your recipe suggestions and cooking advice on the provided recipe database context above
+- Be friendly, encouraging and conversational
+- Keep responses concise and practical
+- If asked about a recipe not in the context, you can still provide general cooking guidance
+- Focus on reducing food waste — encourage users to use what they have
+- If the user asks for step-by-step instructions, guide them through clearly
+- You can suggest ingredient substitutions if they are missing something
+- Respond in the same language the user writes in (English or Malay)
+
+Remember: You are a sous-chef assistant, not a general chatbot. Keep conversations focused on cooking and food."""
+
+        client = Groq(api_key=os.environ.get('GROQ_API_KEY'))
+
+        # Build conversation history
+        groq_history = [
+            {'role': 'system', 'content': system_prompt}
+        ]
+
+        for msg in history:
+            groq_history.append({
+                'role': msg['role'] if msg['role'] == 'user' else 'assistant',
+                'content': msg['content']
+            })
+
+        groq_history.append({
+            'role': 'user',
+            'content': user_message
+        })
+
+        response = client.chat.completions.create(
+            model='llama-3.3-70b-versatile',
+            messages=groq_history,
+            temperature=0.7,
+            max_tokens=1000
+        )
+
+        return jsonify({
+            'success': True,
+            'data': {
+                'reply': response.choices[0].message.content
+            }
+        }), 200
+
+    except Exception as e:
+        print(f'Chat error: {e}')
         return jsonify({'success': False, 'error': str(e)}), 500
 
 # ============================================================
