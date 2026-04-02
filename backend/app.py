@@ -158,6 +158,19 @@ def recommend_recipes():
             }), 400
         
         user_ingredients = data['ingredients']
+
+        # --- NEW: Safely extract names whether it's an object or string ---
+        safe_ingredients = []
+        for item in user_ingredients:
+            if isinstance(item, dict) and 'name' in item:
+                safe_ingredients.append(item['name'])
+            elif isinstance(item, str):
+                safe_ingredients.append(item)
+                
+        # Overwrite the original list with our safe strings
+        user_ingredients = safe_ingredients
+        # ------------------------------------------------------------------
+
         filters = data.get('filters', {})
         min_match = data.get('min_match', 0)
         method = data.get('method', 'normalized')

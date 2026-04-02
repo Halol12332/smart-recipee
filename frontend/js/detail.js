@@ -113,7 +113,8 @@ async function fetchRecipeDetails(recipeId) {
     try {
         // Use RECOMMEND endpoint to get matching data
         const payload = {
-            ingredients: USER_INGREDIENTS,
+            // NEW: Extract the name before sending it to the server
+            ingredients: USER_INGREDIENTS.map(item => item.name || item), 
             method: 'normalized',
             min_match: 0,
             filters: {}
