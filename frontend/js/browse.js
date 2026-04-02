@@ -77,6 +77,9 @@ const detectionPreview = document.getElementById('detectionPreview');
 const annotatedPreviewImage = document.getElementById('annotatedPreviewImage');
 const detectionSummary = document.getElementById('detectionSummary');
 
+// Add this line with your other DOM element definitions near the top
+const testIngredientsBtn = document.getElementById('testIngredientsBtn');
+
 // ============================================
 // INITIALIZATION
 // ============================================
@@ -163,7 +166,54 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     }
+    
+    // ============================================
+    // MANUAL ENTRY FALLBACK (Use Test Ingredients Button)
+    // ============================================
+    const testIngredientsBtn = document.getElementById('testIngredientsBtn');
+    
+    if (testIngredientsBtn) {
+        testIngredientsBtn.addEventListener('click', function() {
+            console.log("Entering manual entry mode...");
 
+            // 1. Clear old data completely
+            USER_INGREDIENTS = [];
+            CONFIRMED_INGREDIENTS = [];
+            DETECTION_DATA = null;
+            
+            if (typeof persistDetectionState === 'function') {
+                persistDetectionState();
+            }
+
+            // 2. Clear upload status and hide the preview image
+            const uploadStatus = document.getElementById('uploadStatus');
+            const detectionPreview = document.getElementById('detectionPreview');
+            if (uploadStatus) uploadStatus.textContent = '';
+            if (detectionPreview) detectionPreview.style.display = 'none';
+
+            // 3. Unhide the ingredients section!
+            const ingredientsSection = document.getElementById('ingredientsSection');
+            const reviewStatus = document.getElementById('reviewStatus');
+            
+            if (ingredientsSection) ingredientsSection.style.display = 'block';
+            if (reviewStatus) {
+                reviewStatus.textContent = 'Adding ingredients manually. Type missing items below and click Add Item.';
+                reviewStatus.style.color = '#333';
+            }
+
+            // 4. THE FIX: Call the correct function we built earlier!
+            if (typeof displayIngredients === 'function') {
+                displayIngredients(USER_INGREDIENTS);
+            }
+
+            // 5. Automatically focus the typing cursor for the user
+            const manualIngredientInput = document.getElementById('manualIngredientInput');
+            if (manualIngredientInput) {
+                manualIngredientInput.scrollIntoView({ behavior: 'smooth' });
+                manualIngredientInput.focus();
+            }
+        });
+    }
     resetRecipeArea();
     restoreSavedState();
 });
