@@ -6,8 +6,8 @@ This file acts as the "bridge" between your RT-DETR object detector,
 your YOLOv8n-cls freshness classifier, and the existing recommendation API.
 
 How it works:
-1) /api/detect receives an uploaded image.
-2) detect_ingredients_from_image(image_path) runs RT-DETR inference.
+1) /api/detect receives an uploaded image and a model_type ('rt-detr' or 'yolov8').
+2) detect_ingredients_from_image() runs the selected model's inference.
 3) For highly perishable items, it crops the bounding box and runs YOLOv8 freshness classification.
 4) It returns JSON in a format the frontend (browse.js) already understands, 
    with updated freshness labels, color-coded bounding boxes, and individual cropped images.
@@ -26,9 +26,12 @@ def _now_iso() -> str:
     return time.strftime('%Y-%m-%dT%H:%M:%S')
 
 
-# Lazy-loaded models
-_DETECTOR_MODEL = None
-_FRESHNESS_MODEL = None
+# Lazy-loaded models dictionary to hold both detectors in memory safely
+_MODELS = {
+    'rt-detr': None,
+    'yolov8': None,
+    'freshness': None
+}
 
 # Ingredients that require freshness checking
 PERISHABLE_ITEMS = {
@@ -37,10 +40,8 @@ PERISHABLE_ITEMS = {
 }
 
 
-def _load_models():
-    global _DETECTOR_MODEL, _FRESHNESS_MODEL
-    if _DETECTOR_MODEL is not None and _FRESHNESS_MODEL is not None:
-        return _DETECTOR_MODEL, _FRESHNESS_MODEL
+def _load_models(model_type='rt-detr'):
+    global _MODELS
 
     try:
         from ultralytics import YOLO, RTDETR  # type: ignore
@@ -49,30 +50,42 @@ def _load_models():
             "ultralytics is not installed. Install it with: pip install ultralytics"
         ) from e
 
-    # Define paths based on the 2-pillar architecture
     models_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'models'))
     
-    detector_path = os.environ.get(
-        'INGREDIENT_MODEL_PATH',
-        os.path.join(models_dir, 'detection_rtdetr.pt')
-    )
-    freshness_path = os.environ.get(
-        'FRESHNESS_MODEL_PATH',
-        os.path.join(models_dir, 'freshnesscls_yolov8ncls.pt')
-    )
+    # 1. Load Freshness Classifier (Always YOLOv8n-cls)
+    if _MODELS['freshness'] is None:
+        freshness_path = os.environ.get(
+            'FRESHNESS_MODEL_PATH',
+            os.path.join(models_dir, 'freshnesscls_yolov8ncls.pt')
+        )
+        if not os.path.exists(freshness_path):
+            raise FileNotFoundError(f"Freshness weights not found at: {freshness_path}")
+        print("LOADING YOLOv8 FRESHNESS CLASSIFIER FROM:", freshness_path)
+        _MODELS['freshness'] = YOLO(freshness_path)
 
-    if not os.path.exists(detector_path):
-        raise FileNotFoundError(f"Detector weights not found at: {detector_path}")
-    if not os.path.exists(freshness_path):
-        raise FileNotFoundError(f"Freshness weights not found at: {freshness_path}")
-
-    print("LOADING RT-DETR DETECTOR FROM:", detector_path)
-    print("LOADING YOLOv8 FRESHNESS CLASSIFIER FROM:", freshness_path)
+    # 2. Load the requested Object Detector
+    if model_type == 'yolov8':
+        if _MODELS['yolov8'] is None:
+            yolo_path = os.path.join(models_dir, 'detection_yolov8.pt')
+            if not os.path.exists(yolo_path):
+                raise FileNotFoundError(f"YOLOv8 weights not found at: {yolo_path}")
+            print("LOADING YOLOv8 DETECTOR FROM:", yolo_path)
+            _MODELS['yolov8'] = YOLO(yolo_path)
+        detector = _MODELS['yolov8']
     
-    _DETECTOR_MODEL = RTDETR(detector_path)
-    _FRESHNESS_MODEL = YOLO(freshness_path)
+    else:  # Default to rt-detr
+        if _MODELS['rt-detr'] is None:
+            rtdetr_path = os.environ.get(
+                'INGREDIENT_MODEL_PATH',
+                os.path.join(models_dir, 'detection_rtdetr.pt')
+            )
+            if not os.path.exists(rtdetr_path):
+                raise FileNotFoundError(f"RT-DETR weights not found at: {rtdetr_path}")
+            print("LOADING RT-DETR DETECTOR FROM:", rtdetr_path)
+            _MODELS['rt-detr'] = RTDETR(rtdetr_path)
+        detector = _MODELS['rt-detr']
     
-    return _DETECTOR_MODEL, _FRESHNESS_MODEL
+    return detector, _MODELS['freshness']
 
 
 def _ensure_dir(path: str) -> None:
@@ -124,16 +137,16 @@ def _draw_detections(image, detections: List[Dict[str, Any]]):
     return annotated
 
 
-def detect_ingredients_from_image(image_path: str) -> Dict[str, Any]:
+def detect_ingredients_from_image(image_path: str, model_type: str = 'rt-detr') -> Dict[str, Any]:
     """
-    Run RT-DETR detection, followed by YOLOv8n-cls for perishables.
+    Run Object detection (RT-DETR or YOLOv8), followed by YOLOv8n-cls for perishables.
     Returns:
     - aggregated ingredients (with freshness states and crop images)
     - raw detections with bbox, confidence, and crop images
     - annotated image filename
     """
     conf_th = float(os.environ.get('INGREDIENT_CONF_THRESHOLD', '0.5'))
-    detector, freshness_classifier = _load_models()
+    detector, freshness_classifier = _load_models(model_type)
 
     image = cv2.imread(image_path)
     if image is None:
@@ -143,7 +156,7 @@ def detect_ingredients_from_image(image_path: str) -> Dict[str, Any]:
     uploads_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'uploads'))
     _ensure_dir(uploads_dir)
 
-    # 1. Run RT-DETR Object Detection
+    # 1. Run Object Detection (YOLOv8 or RT-DETR)
     results = detector.predict(source=image_path, conf=conf_th, verbose=False)
     r0 = results[0]
 
@@ -200,7 +213,7 @@ def detect_ingredients_from_image(image_path: str) -> Dict[str, Any]:
                     'confidence': conf,
                     'count': 1,
                     'crop_image': crop_filename,
-                    'detection_id': uuid.uuid4().hex[:8]  # NEW: Give this group a stable unique ID!
+                    'detection_id': uuid.uuid4().hex[:8]  # Give this group a stable unique ID!
                 }
             else:
                 by_name[final_name]['count'] += 1
@@ -230,8 +243,7 @@ def detect_ingredients_from_image(image_path: str) -> Dict[str, Any]:
         },
         'meta': {
             'confidence_threshold': conf_th,
-            'detector_model': os.environ.get('INGREDIENT_MODEL_PATH', 'detection_rtdetr.pt'),
-            'freshness_model': os.environ.get('FRESHNESS_MODEL_PATH', 'freshnesscls_yolov8ncls.pt'),
+            'detector_model': model_type,
             'total_detections': len(detections),
         },
         'ingredients': ingredients,

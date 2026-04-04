@@ -8,9 +8,10 @@ from flask_cors import CORS
 import json
 import os
 import time
+import shutil # NEW: Needed for copying images to training folders
 from werkzeug.utils import secure_filename
 
-# NEW: Added from your friend's module for the Chatbot
+# Added from your friend's module for the Chatbot
 from groq import Groq
 from dotenv import load_dotenv
 
@@ -32,6 +33,50 @@ UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), 'uploads')
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 ALLOWED_IMAGE_EXTS = {'.jpg', '.jpeg', '.png', '.webp'}
 
+# ============================================================
+# NEW: ACTIVE LEARNING PIPELINE SETUP
+# ============================================================
+TRAINING_DIR = os.path.join(os.path.dirname(__file__), 'training_data')
+for model_name in ['rt-detr', 'yolov8']:
+    os.makedirs(os.path.join(TRAINING_DIR, model_name, 'images'), exist_ok=True)
+    os.makedirs(os.path.join(TRAINING_DIR, model_name, 'labels'), exist_ok=True)
+
+CLASSES_FILE = os.path.join(TRAINING_DIR, 'classes.txt')
+
+# Hardcoded from your Roboflow data.yaml to ensure exact ID matching
+YAML_CLASSES = [
+    "anchovies", "apple", "bean_sprouts", "brocolli", "cabbage", "carrot",
+    "chicken", "chili", "coconut_milk", "corn", "cucumber", "curry_leaves",
+    "egg", "eggplant", "fish", "garlic", "ginger", "grape", "leafy_greens",
+    "lemongrass", "lime", "onion", "orange", "pakchoy", "pandan_leaves",
+    "potato", "spring_onion", "tempeh", "tofu", "tomato", "turmeric", "unknown_bag"
+]
+
+def get_class_id(class_name):
+    """Retrieves the YOLO class ID, matching the data.yaml indices exactly."""
+    class_name = class_name.lower().strip()
+    
+    # Strip "fresh " or "rotten " so Stage 1 bounding boxes only learn the base ingredient
+    class_name = class_name.replace("fresh ", "").replace("rotten ", "").strip()
+
+    classes = []
+    # 1. If classes.txt doesn't exist, create it using your exact YAML list
+    if not os.path.exists(CLASSES_FILE):
+        classes = YAML_CLASSES.copy()
+        with open(CLASSES_FILE, 'w') as f:
+            f.write('\n'.join(classes))
+    else:
+        # Load existing classes
+        with open(CLASSES_FILE, 'r') as f:
+            classes = [line.strip() for line in f.readlines() if line.strip()]
+
+    # 2. If the user annotates something entirely new, append it safely to the end
+    if class_name not in classes:
+        classes.append(class_name)
+        with open(CLASSES_FILE, 'a') as f:
+            f.write(f"\n{class_name}")
+            
+    return classes.index(class_name)
 
 def _allowed_image(filename: str) -> bool:
     _, ext = os.path.splitext(filename.lower())
@@ -76,9 +121,6 @@ def health_check():
 def get_filters():
     """
     Get available filter options from recipe database.
-    
-    Returns:
-        JSON with available dietary options, cuisines, and time ranges
     """
     try:
         options = get_available_filter_options(recipes)
@@ -97,12 +139,6 @@ def get_filters():
 def get_recipe_by_id(recipe_id):
     """
     Get detailed information for a specific recipe.
-    
-    Args:
-        recipe_id: Recipe ID (e.g., '001')
-    
-    Returns:
-        JSON with complete recipe details
     """
     try:
         # Find recipe by ID
@@ -129,22 +165,6 @@ def get_recipe_by_id(recipe_id):
 def recommend_recipes():
     """
     Main recommendation endpoint.
-    
-    Request Body (JSON):
-    {
-        "ingredients": ["chicken", "rice", "egg"],
-        "filters": {
-            "dietary": ["vegetarian"],
-            "time_category": "quick",
-            "cuisines": ["Asian"],
-            "max_prep_time": 30
-        },
-        "min_match": 20,
-        "method": "normalized"
-    }
-    
-    Returns:
-        JSON with filtered and ranked recipe recommendations
     """
     try:
         # Parse request data
@@ -159,7 +179,7 @@ def recommend_recipes():
         
         user_ingredients = data['ingredients']
 
-        # --- NEW: Safely extract names whether it's an object or string ---
+        # --- Safely extract names whether it's an object or string ---
         safe_ingredients = []
         for item in user_ingredients:
             if isinstance(item, dict) and 'name' in item:
@@ -227,18 +247,16 @@ def recommend_recipes():
 
 @app.route('/api/detect', methods=['POST'])
 def detect_ingredients():
-    """Detect ingredients from an uploaded image.
-
-    Expects multipart/form-data with field name: image
-
-    Returns:
-        JSON with detection output in the same structure browse.js expects.
-    """
+    """Detect ingredients from an uploaded image."""
     try:
         if 'image' not in request.files:
             return jsonify({'success': False, 'error': 'Missing file field: image'}), 400
 
         file = request.files['image']
+        
+        # NEW: Grab the model choice from the frontend (defaults to rt-detr)
+        model_type = request.form.get('model_type', 'rt-detr')
+
         if not file or file.filename == '':
             return jsonify({'success': False, 'error': 'No file selected'}), 400
 
@@ -249,18 +267,21 @@ def detect_ingredients():
         save_path = os.path.join(UPLOAD_FOLDER, filename)
         file.save(save_path)
 
-        # Run detection
-        result = detect_ingredients_from_image(save_path)
+        # Run detection (passing the model type to detector.py)
+        result = detect_ingredients_from_image(save_path, model_type)
 
         if result.get('annotated_image'):
             result['annotated_image_url'] = f'http://127.0.0.1:5000/uploads/{result["annotated_image"]}'
 
-        # YOUR PERFECT CODE: Construct URLs for every cropped ingredient
+        # Construct URLs for every cropped ingredient
         for ing in result.get('ingredients', []):
             if ing.get('crop_image'):
                 ing['crop_image_url'] = f'http://127.0.0.1:5000/uploads/{ing["crop_image"]}'
 
         result['original_image_url'] = f'http://127.0.0.1:5000/uploads/{filename}'
+        
+        # NEW: Send the raw filename back so the frontend can reference it for annotation
+        result['raw_filename'] = filename 
 
         return jsonify({'success': True, 'data': result}), 200
 
@@ -270,19 +291,54 @@ def detect_ingredients():
         return jsonify({'success': False, 'error': f'Server error: {str(e)}'}), 500
 
 
+# ============================================================
+# NEW: ANNOTATE ENDPOINT
+# ============================================================
+@app.route('/api/annotate', methods=['POST'])
+def save_annotation():
+    """
+    Receives user-corrected bounding boxes and saves them in YOLO format 
+    to the designated training directory for future model fine-tuning.
+    """
+    try:
+        data = request.get_json()
+        filename = data.get('image')
+        model_type = data.get('model_type', 'rt-detr')
+        annotations = data.get('annotations', [])
+
+        if not filename or not annotations:
+            return jsonify({'success': False, 'error': 'Missing image or annotation data'}), 400
+
+        source_img = os.path.join(UPLOAD_FOLDER, filename)
+        if not os.path.exists(source_img):
+            return jsonify({'success': False, 'error': 'Original uploaded image not found'}), 404
+
+        # 1. Copy the original image to the training folder
+        target_img = os.path.join(TRAINING_DIR, model_type, 'images', filename)
+        shutil.copy(source_img, target_img)
+
+        # 2. Write the YOLO format .txt label file
+        txt_filename = os.path.splitext(filename)[0] + '.txt'
+        target_txt = os.path.join(TRAINING_DIR, model_type, 'labels', txt_filename)
+
+        with open(target_txt, 'w') as f:
+            for ann in annotations:
+                cid = get_class_id(ann['class_name'])
+                # YOLO Format: class_id x_center y_center width height
+                f.write(f"{cid} {ann['x_center']} {ann['y_center']} {ann['width']} {ann['height']}\n")
+
+        return jsonify({'success': True, 'message': 'Correction saved successfully to training dataset!'}), 200
+
+    except Exception as e:
+        print(f"Annotation save error: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
 @app.route('/api/recipes', methods=['GET'])
 def get_all_recipes():
     """
     Get all recipes (without matching).
     Optional query parameters for filtering.
-    
-    Query Parameters:
-        - cuisine: Filter by cuisine type
-        - dietary: Filter by dietary requirement
-        - max_time: Maximum preparation time
-    
-    Returns:
-        JSON with all recipes (optionally filtered)
     """
     try:
         result = recipes.copy()
@@ -423,7 +479,8 @@ def chat():
         user_message = body.get('message', '').strip()
         ingredients = body.get('ingredients', [])
         recipes_context = body.get('recipes', [])
-        # --- NEW: Safely extract names whether it's an object or string ---
+        
+        # --- Safely extract names whether it's an object or string ---
         safe_ingredients = []
         for item in ingredients:
             if isinstance(item, dict) and 'name' in item:
@@ -431,6 +488,7 @@ def chat():
             elif isinstance(item, str):
                 safe_ingredients.append(item)
         # ------------------------------------------------------------------
+        
         history = body.get('history', [])
 
         if not user_message:
@@ -550,7 +608,8 @@ if __name__ == '__main__':
     print("  GET  /api/recipe/<id>    - Get recipe by ID")
     print("  POST /api/recommend      - Get recommendations")
     print("  POST /api/detect         - Upload image for detection")
-    print("  POST /api/chat           - Chat with AI assistant") # NEW: Added documentation
+    print("  POST /api/annotate       - Active Learning feedback") # NEW
+    print("  POST /api/chat           - Chat with AI assistant")
     print("=" * 60)
     
     # Run the Flask app
