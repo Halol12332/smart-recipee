@@ -10,3 +10,8 @@ fish
 potato
 fresh cucumber
 corn
+tomato
+pakchoy
+carrot
+chicken
+cucumber

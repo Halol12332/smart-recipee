@@ -1,6 +1,6 @@
 /**
  * Smart Recipee - Detection & Active Learning Module
- * Author: You
+ * Author: Jaya Hakim Prajna
  */
 
 // ============================================

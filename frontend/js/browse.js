@@ -202,9 +202,47 @@ function createRecipeCard(recipe) {
             <div class="card-rating" id="card-rating-${recipe.id}">
                 <span class="card-rating-stars">☆☆☆☆☆</span><span class="card-rating-count">No ratings</span>
             </div>
+            
             <div class="recipe-info">
-                <div class="info-row"><span class="info-label">Matched:</span><span class="info-value">${recipe.total_matched}/${recipe.total_required}</span></div>
+                <div class="info-row">
+                    <span class="info-label">Matched Ingredients:</span>
+                    <span class="info-value">${recipe.total_matched}/${recipe.total_required}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Dietary:</span>
+                    <span class="info-value">${Array.isArray(recipe.dietary) ? recipe.dietary.join(', ') : ''}</span>
+                </div>
+                ${recipe.nutrition ? `
+                <div class="info-row">
+                    <span class="info-label">🔥 Calories:</span>
+                    <span class="info-value">${recipe.nutrition.calories} kcal</span>
+                </div>
+                ` : ''}
             </div>
+
+            ${recipe.matched_ingredients && recipe.matched_ingredients.length > 0 ? `
+                <div class="matched-ingredients">
+                    <h4>Matched Ingredients:</h4>
+                    <ul>
+                        ${recipe.matched_ingredients.slice(0, 3).map(ing => `<li>${escapeRecipeHtml(ing)}</li>`).join('')}
+                        ${recipe.matched_ingredients.length > 3 ? `<li>+ ${recipe.matched_ingredients.length - 3} more...</li>` : ''}
+                    </ul>
+                </div>
+            ` : ''}
+
+            ${recipe.missing_ingredients && recipe.missing_ingredients.length > 0 ? `
+                <div class="missing-ingredients">
+                    <h4>Missing Ingredients:</h4>
+                    <ul>
+                        ${recipe.missing_ingredients.slice(0, 3).map(ing => `<li>${escapeRecipeHtml(ing)}</li>`).join('')}
+                        ${recipe.missing_ingredients.length > 3 ? `<li>+ ${recipe.missing_ingredients.length - 3} more...</li>` : ''}
+                    </ul>
+                </div>
+            ` : `
+                <div style="color: #2e7d32; font-weight: 600; margin-top: 1rem;">
+                    ✓ You have all ingredients!
+                </div>
+            `}
         </div>
         <div class="recipe-card-footer">
             <button class="btn-view-recipe" onclick="viewRecipe('${recipe.id}')">View Recipe →</button>

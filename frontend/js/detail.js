@@ -104,23 +104,31 @@ document.addEventListener('DOMContentLoaded', async function() {
 });
 
 // ============================================
-// FETCH RECIPE DETAILS (UPDATED TO USE RECOMMEND API)
+// FETCH RECIPE DETAILS (UPDATED TO MATCH BROWSE LOGIC)
 // ============================================
 
 async function fetchRecipeDetails(recipeId) {
     showLoading();
     
     try {
+        // THE FIX: Apply the EXACT SAME cleaning logic as browse_recipes.js!
+        const safeIngredients = USER_INGREDIENTS
+            .map(item => typeof item === 'string' ? item : item.name) // Extract name safely
+            .filter(name => !name.toLowerCase().includes('rotten'))   // Ignore rotten food
+            .map(name => name.toLowerCase().replace('fresh ', '').trim()); // Strip "fresh " prefix
+
+        // Remove duplicates just like browse_recipes.js
+        const dedupeIngredients = (items) => [...new Set(items)];
+
         // Use RECOMMEND endpoint to get matching data
         const payload = {
-            // NEW: Extract the name before sending it to the server
-            ingredients: USER_INGREDIENTS.map(item => item.name || item), 
+            ingredients: dedupeIngredients(safeIngredients),
             method: 'normalized',
             min_match: 0,
             filters: {}
         };
         
-        console.log('Fetching with payload:', payload);
+        console.log('Fetching detail with cleaned payload:', payload);
         
         const response = await fetch(`${API_BASE_URL}/recommend`, {
             method: 'POST',
