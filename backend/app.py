@@ -49,7 +49,7 @@ YAML_CLASSES = [
     "chicken", "chili", "coconut_milk", "corn", "cucumber", "curry_leaves",
     "egg", "eggplant", "fish", "garlic", "ginger", "grape", "leafy_greens",
     "lemongrass", "lime", "onion", "orange", "pakchoy", "pandan_leaves",
-    "potato", "spring_onion", "tempeh", "tofu", "tomato", "turmeric", "unknown_bag"
+    "potato", "spring_onion", "tempeh", "tofu", "tomato", "turmeric"
 ]
 
 def get_class_id(class_name):

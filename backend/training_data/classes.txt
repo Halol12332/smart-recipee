@@ -15,3 +15,6 @@ pakchoy
 carrot
 chicken
 cucumber
+egg
+orange
+lime
