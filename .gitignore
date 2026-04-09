@@ -1,0 +1,38 @@
+# ==========================================
+# 1. Virtual Environments
+# ==========================================
+.venv/
+venv/
+env/
+
+# ==========================================
+# 2. Python Cache & Compiled Files
+# ==========================================
+__pycache__/
+*.pyc
+*.pyo
+
+# ==========================================
+# 3. Model Weights
+# ==========================================
+# Keeps the repository lightweight by ignoring heavy model files
+# backend/models/*.pt
+# backend/models/*.pth
+
+# ==========================================
+# 4. User Uploads & Inference Outputs
+# ==========================================
+# Ignores user-uploaded fridge images and YOLO prediction outputs
+backend/uploads/
+backend/runs/
+
+# ==========================================
+# 5. Security / Credentials
+# ==========================================
+.env
+
+# ==========================================
+# 6. OS Generated Files
+# ==========================================
+.DS_Store
+Thumbs.db

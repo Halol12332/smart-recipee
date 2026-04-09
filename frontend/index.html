@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Recipee — Reduce Food Waste, Cook Smarter</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --purple-start: #667eea;
+            --purple-end: #764ba2;
+            --text-dark: #1a1a2e;
+            --text-mid: #444;
+            --text-light: #888;
+            --white: #ffffff;
+            --bg: #f7f6ff;
+            --card-bg: #ffffff;
+            --border: #ede9fe;
+            --green: #2e7d32;
+            --green-light: #e8f5e9;
+            --orange: #e65100;
+            --orange-light: #fff3e0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text-dark);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* =====================
+           HERO
+        ===================== */
+
+        .hero {
+            background: linear-gradient(135deg, var(--purple-start) 0%, var(--purple-end) 100%);
+            color: white;
+            padding: 0;
+            position: relative;
+            overflow: hidden;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Decorative background circles */
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -120px;
+            right: -120px;
+            width: 500px;
+            height: 500px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.06);
+            pointer-events: none;
+        }
+
+        .hero::after {
+            content: '';
+            position: absolute;
+            bottom: -80px;
+            left: -80px;
+            width: 350px;
+            height: 350px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.04);
+            pointer-events: none;
+        }
+
+        /* Nav */
+        .hero-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 5%;
+            position: relative;
+            z-index: 10;
+        }
+
+        .hero-nav-logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+            text-decoration: none;
+            letter-spacing: -0.5px;
+        }
+
+        .hero-nav-links {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .hero-nav-links a {
+            color: rgba(255,255,255,0.85);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            border: 1.5px solid rgba(255,255,255,0.3);
+            transition: all 0.2s;
+        }
+
+        .hero-nav-links a:hover {
+            background: rgba(255,255,255,0.15);
+            border-color: rgba(255,255,255,0.6);
+            color: white;
+        }
+
+        .hero-nav-links a.primary {
+            background: white;
+            color: var(--purple-end);
+            border-color: white;
+            font-weight: 600;
+        }
+
+        .hero-nav-links a.primary:hover {
+            background: rgba(255,255,255,0.9);
+        }
+
+        /* Hero content */
+        .hero-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            text-align: center;
+            padding: 4rem 5% 5rem;
+            position: relative;
+            z-index: 10;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            font-size: 0.82rem;
+            font-weight: 600;
+            padding: 0.4rem 1rem;
+            border-radius: 100px;
+            margin-bottom: 1.75rem;
+            letter-spacing: 0.3px;
+            animation: fadeDown 0.6s ease both;
+        }
+
+        .hero-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2.8rem, 7vw, 5.5rem);
+            font-weight: 900;
+            line-height: 1.05;
+            color: white;
+            margin-bottom: 1.5rem;
+            max-width: 800px;
+            animation: fadeDown 0.6s 0.1s ease both;
+        }
+
+        .hero-title span {
+            position: relative;
+            display: inline-block;
+        }
+
+        .hero-title span::after {
+            content: '';
+            position: absolute;
+            bottom: 4px;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: rgba(255,255,255,0.4);
+            border-radius: 2px;
+        }
+
+        .hero-subtitle {
+            font-size: clamp(1rem, 2.5vw, 1.25rem);
+            color: rgba(255,255,255,0.85);
+            line-height: 1.7;
+            max-width: 560px;
+            margin-bottom: 2.5rem;
+            animation: fadeDown 0.6s 0.2s ease both;
+        }
+
+        .hero-cta {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            animation: fadeDown 0.6s 0.3s ease both;
+        }
+
+        .btn-hero-primary {
+            background: white;
+            color: var(--purple-end);
+            padding: 0.9rem 2.25rem;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.2s;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+
+        .btn-hero-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 28px rgba(0,0,0,0.2);
+        }
+
+        .btn-hero-secondary {
+            background: rgba(255,255,255,0.15);
+            color: white;
+            padding: 0.9rem 2.25rem;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            border: 2px solid rgba(255,255,255,0.4);
+            transition: all 0.2s;
+        }
+
+        .btn-hero-secondary:hover {
+            background: rgba(255,255,255,0.25);
+            border-color: rgba(255,255,255,0.7);
+        }
+
+        /* Stats bar */
+        .hero-stats {
+            display: flex;
+            gap: 3rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 3.5rem;
+            padding-top: 2.5rem;
+            border-top: 1px solid rgba(255,255,255,0.2);
+            animation: fadeDown 0.6s 0.4s ease both;
+            width: 100%;
+            max-width: 640px;
+        }
+
+        .hero-stat {
+            text-align: center;
+        }
+
+        .hero-stat-num {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: white;
+            line-height: 1;
+            margin-bottom: 0.3rem;
+        }
+
+        .hero-stat-label {
+            font-size: 0.82rem;
+            color: rgba(255,255,255,0.7);
+            font-weight: 500;
+        }
+
+        /* =====================
+           HOW IT WORKS
+        ===================== */
+
+        .section {
+            padding: 5rem 5%;
+        }
+
+        .section-inner {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .section-label {
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--purple-start);
+            margin-bottom: 0.75rem;
+        }
+
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(1.8rem, 4vw, 2.8rem);
+            font-weight: 700;
+            color: var(--text-dark);
+            line-height: 1.2;
+            margin-bottom: 1rem;
+        }
+
+        .section-subtitle {
+            font-size: 1.05rem;
+            color: var(--text-light);
+            max-width: 520px;
+            line-height: 1.7;
+            margin-bottom: 3.5rem;
+        }
+
+        /* Steps */
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            position: relative;
+        }
+
+        .steps::before {
+            content: '';
+            position: absolute;
+            top: 40px;
+            left: calc(16.67% + 1rem);
+            right: calc(16.67% + 1rem);
+            height: 2px;
+            background: linear-gradient(90deg, var(--purple-start), var(--purple-end));
+            opacity: 0.25;
+        }
+
+        .step-card {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem 1.75rem;
+            box-shadow: 0 2px 16px rgba(102,126,234,0.08);
+            border: 1px solid var(--border);
+            position: relative;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .step-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 32px rgba(102,126,234,0.14);
+        }
+
+        .step-number {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--purple-start), var(--purple-end));
+            color: white;
+            font-weight: 700;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.25rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .step-icon {
+            font-size: 1.8rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .step-title {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .step-desc {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            line-height: 1.6;
+        }
+
+        /* =====================
+           FEATURES GRID
+        ===================== */
+
+        .features-section {
+            background: white;
+            padding: 5rem 5%;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .feature-card {
+            background: var(--bg);
+            border-radius: 14px;
+            padding: 1.75rem;
+            border: 1px solid var(--border);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 24px rgba(102,126,234,0.1);
+        }
+
+        .feature-emoji {
+            font-size: 2rem;
+            margin-bottom: 0.9rem;
+            display: block;
+        }
+
+        .feature-title {
+            font-weight: 700;
+            font-size: 1rem;
+            color: var(--text-dark);
+            margin-bottom: 0.4rem;
+        }
+
+        .feature-desc {
+            font-size: 0.875rem;
+            color: var(--text-light);
+            line-height: 1.6;
+        }
+
+        /* =====================
+           FOOD WASTE IMPACT
+        ===================== */
+
+        .impact-section {
+            background: linear-gradient(135deg, var(--purple-start) 0%, var(--purple-end) 100%);
+            padding: 5rem 5%;
+            color: white;
+            text-align: center;
+        }
+
+        .impact-section .section-label {
+            color: rgba(255,255,255,0.7);
+        }
+
+        .impact-section .section-title {
+            color: white;
+            margin-bottom: 1rem;
+        }
+
+        .impact-section .section-subtitle {
+            color: rgba(255,255,255,0.8);
+            margin: 0 auto 3rem;
+        }
+
+        .impact-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .impact-item {
+            background: rgba(255,255,255,0.12);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 14px;
+            padding: 2rem 1.5rem;
+        }
+
+        .impact-num {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: white;
+            line-height: 1;
+            margin-bottom: 0.5rem;
+        }
+
+        .impact-label {
+            font-size: 0.85rem;
+            color: rgba(255,255,255,0.75);
+            line-height: 1.5;
+        }
+
+        /* =====================
+           CTA SECTION
+        ===================== */
+
+        .cta-section {
+            padding: 5rem 5%;
+            text-align: center;
+            background: var(--bg);
+        }
+
+        .cta-section .section-title {
+            margin-bottom: 1rem;
+        }
+
+        .cta-section .section-subtitle {
+            margin: 0 auto 2.5rem;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-cta-primary {
+            background: linear-gradient(135deg, var(--purple-start), var(--purple-end));
+            color: white;
+            padding: 0.9rem 2.5rem;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.2s;
+            box-shadow: 0 4px 16px rgba(102,126,234,0.35);
+        }
+
+        .btn-cta-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(102,126,234,0.45);
+        }
+
+        .btn-cta-secondary {
+            background: white;
+            color: var(--purple-end);
+            padding: 0.9rem 2.5rem;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            border: 2px solid var(--border);
+            transition: all 0.2s;
+        }
+
+        .btn-cta-secondary:hover {
+            border-color: var(--purple-start);
+            box-shadow: 0 4px 16px rgba(102,126,234,0.1);
+        }
+
+        /* =====================
+           FOOTER
+        ===================== */
+
+        footer {
+            background: var(--text-dark);
+            color: rgba(255,255,255,0.6);
+            text-align: center;
+            padding: 2rem;
+            font-size: 0.875rem;
+            margin-top: auto;
+        }
+
+        footer strong {
+            color: white;
+        }
+
+        /* =====================
+           ANIMATIONS
+        ===================== */
+
+        @keyframes fadeDown {
+            from {
+                opacity: 0;
+                transform: translateY(-16px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* =====================
+           RESPONSIVE
+        ===================== */
+
+        @media (max-width: 768px) {
+            .hero-nav-links {
+                display: none;
+            }
+
+            .steps {
+                grid-template-columns: 1fr;
+            }
+
+            .steps::before {
+                display: none;
+            }
+
+            .impact-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .hero-stats {
+                gap: 2rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-cta {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn-hero-primary,
+            .btn-hero-secondary {
+                width: 100%;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===================== HERO ===================== -->
+    <section class="hero">
+        <nav class="hero-nav">
+            <a href="index.html" class="hero-nav-logo">Smart Recipee</a>
+            <div class="hero-nav-links">
+                <a href="browse.html">🍽️ Browse Recipes</a>
+                <a href="meal-planner.html">📅 Meal Planner</a>
+                <a href="history.html">❤️ Favourites</a>
+                <a href="chat.html">🤖 Assistant</a>
+                <a href="add-recipe.html">➕ Add Recipe</a>
+                <a href="browse.html" class="primary">Get Started →</a>
+            </div>
+        </nav>
+
+        <div class="hero-content">
+            <div class="hero-badge">
+                🌱 Reducing Household Food Waste
+            </div>
+
+            <h1 class="hero-title">
+                Cook smarter with<br>
+                <span>what you have</span>
+            </h1>
+
+            <p class="hero-subtitle">
+                Upload a photo of your fridge, detect your ingredients instantly,
+                and get personalised Malaysian recipe recommendations — reducing waste one meal at a time.
+            </p>
+
+            <div class="hero-cta">
+                <a href="browse.html" class="btn-hero-primary">📸 Start with your fridge →</a>
+                <a href="meal-planner.html" class="btn-hero-secondary">📅 Plan your week</a>
+            </div>
+
+            <div class="hero-stats">
+                <div class="hero-stat">
+                    <div class="hero-stat-num">100+</div>
+                    <div class="hero-stat-label">Malaysian Recipes</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="hero-stat-num">3</div>
+                    <div class="hero-stat-label">Cuisines Covered</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="hero-stat-num">7</div>
+                    <div class="hero-stat-label">Day Lunch & Dinner Planning</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===================== HOW IT WORKS ===================== -->
+    <section class="section">
+        <div class="section-inner">
+            <div class="section-label">Simple & Fast</div>
+            <h2 class="section-title">How Smart Recipee works</h2>
+            <p class="section-subtitle">Three simple steps from fridge to table — no more guessing what to cook.</p>
+
+            <div class="steps">
+                <div class="step-card">
+                    <div class="step-number">1</div>
+                    <div class="step-icon">📸</div>
+                    <div class="step-title">Upload your fridge photo</div>
+                    <p class="step-desc">Take a photo of your fridge or ingredients. Our YOLOv8 AI model detects what you have automatically.</p>
+                </div>
+
+                <div class="step-card">
+                    <div class="step-number">2</div>
+                    <div class="step-icon">🔍</div>
+                    <div class="step-title">Review & confirm ingredients</div>
+                    <p class="step-desc">Check the detected ingredients, remove any mistakes, and add anything that was missed — all in seconds.</p>
+                </div>
+
+                <div class="step-card">
+                    <div class="step-number">3</div>
+                    <div class="step-icon">🍽️</div>
+                    <div class="step-title">Get matched recipes</div>
+                    <p class="step-desc">Our normalized similarity algorithm ranks 100+ Malaysian recipes by how well they match what you have.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===================== FEATURES ===================== -->
+    <section class="features-section">
+        <div class="section-inner">
+            <div class="section-label">Everything you need</div>
+            <h2 class="section-title">Built to reduce food waste</h2>
+            <p class="section-subtitle">Every feature is designed around one goal — helping you use what you already have.</p>
+
+            <div class="features-grid">
+                <div class="feature-card">
+                    <span class="feature-emoji">🛒</span>
+                    <div class="feature-title">Almost There Suggestions</div>
+                    <p class="feature-desc">See recipes you're just 1–2 ingredients away from. A focused shopping list gets you there fast.</p>
+                </div>
+
+                <div class="feature-card">
+                    <span class="feature-emoji">📋</span>
+                    <div class="feature-title">Smart Shopping List</div>
+                    <p class="feature-desc">Auto-generated from your almost-there recipes. Edit, print or download in one click.</p>
+                </div>
+
+                <div class="feature-card">
+                    <span class="feature-emoji">🔥</span>
+                    <div class="feature-title">Nutritional Information</div>
+                    <p class="feature-desc">Full calorie and macro breakdown for every recipe, including protein, carbs, fat and fibre.</p>
+                </div>
+
+                <div class="feature-card">
+                    <span class="feature-emoji">⭐</span>
+                    <div class="feature-title">Ratings & Reviews</div>
+                    <p class="feature-desc">Rate recipes and leave comments. Community ratings help surface the best dishes.</p>
+                </div>
+
+                <div class="feature-card">
+                    <span class="feature-emoji">❤️</span>
+                    <div class="feature-title">Favourites & Cooked History</div>
+                    <p class="feature-desc">Save recipes you love and track everything you've cooked. Your personal recipe journal.</p>
+                </div>
+
+                <div class="feature-card">
+                    <span class="feature-emoji">📅</span>
+                    <div class="feature-title">Weekly Meal Planner</div>
+                    <p class="feature-desc">Auto-generates a 7-day lunch and dinner plan using your ingredients, preferences and ratings.</p>
+                </div>
+
+                <div class="feature-card">
+                    <span class="feature-emoji">🤖</span>
+                    <div class="feature-title">AI Culinary Assistant</div>
+                    <p class="feature-desc">Chat with an LLM-powered sous-chef that knows your ingredients and suggests personalised recipes.</p>
+                </div>
+
+                <div class="feature-card">
+                    <span class="feature-emoji">➕</span>
+                    <div class="feature-title">Add Your Own Recipes</div>
+                    <p class="feature-desc">Create and save your own recipes to the database. Edit, delete and upload images anytime.</p>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ===================== IMPACT ===================== -->
+    <section class="impact-section">
+        <div class="section-inner">
+            <div class="section-label">Why it matters</div>
+            <h2 class="section-title">Food waste is a real problem</h2>
+            <p class="section-subtitle">Smart Recipee was built to tackle household food waste — the most preventable part of the food waste chain.</p>
+
+            <div class="impact-grid">
+                <div class="impact-item">
+                    <div class="impact-num">30%</div>
+                    <p class="impact-label">of food purchased by households is never consumed</p>
+                </div>
+                <div class="impact-item">
+                    <div class="impact-num">1/3</div>
+                    <p class="impact-label">of all food produced globally is lost or wasted each year</p>
+                </div>
+                <div class="impact-item">
+                    <div class="impact-num">↓</div>
+                    <p class="impact-label">Smart meal planning directly reduces unnecessary food purchases</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===================== CTA ===================== -->
+    <section class="cta-section">
+        <div class="section-inner">
+            <h2 class="section-title">Ready to cook smarter?</h2>
+            <p class="section-subtitle">Start by uploading a photo of your fridge — it only takes a few seconds.</p>
+            <div class="cta-buttons">
+                <a href="browse.html" class="btn-cta-primary">📸 Upload fridge photo →</a>
+                <a href="meal-planner.html" class="btn-cta-secondary">📅 View Meal Planner</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===================== FOOTER ===================== -->
+    <footer>
+        <p><strong>Smart Recipee</strong> &nbsp; · &copy; 2025</p>
+        <p style="margin-top: 0.4rem; font-size: 0.8rem;">Your Trustful Recipe Recommender</p>
+    </footer>
+
+</body>
+</html>

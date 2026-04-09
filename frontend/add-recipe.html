@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Recipe - Smart Recipee</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-top">
+                <div>
+                    <h1>Smart Recipee</h1>
+                    <p class="subtitle">Your Trustful Recipe Recommender</p>
+                </div>
+                <nav class="header-nav">
+                    <a href="index.html" class="nav-link">🏠 Home</a>
+                    <a href="browse.html" class="nav-link">🍽️ Recipes</a>
+                    <a href="history.html" class="nav-link">❤️ Favourites & History</a>
+                    <a href="meal-planner.html" class="nav-link">📅 Meal Planner</a>
+                    <a href="chat.html" class="nav-link">🤖 Assistant</a>
+                    <a href="add-recipe.html" class="nav-link active">➕ Add Recipe</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="add-recipe-page">
+            <div class="add-recipe-header">
+                <h2 class="add-recipe-title">➕ Add Your Own Recipe</h2>
+                <p class="add-recipe-subtitle">Share a recipe and it will be added to the Smart Recipee database</p>
+            </div>
+
+            <div class="add-recipe-form-wrapper">
+
+                <!-- Basic Info -->
+                <div class="form-section">
+                    <h3 class="form-section-title">📋 Basic Information</h3>
+                    <div class="form-grid">
+                        <div class="form-group full-width">
+                            <label for="recipeName">Recipe Name *</label>
+                            <input type="text" id="recipeName" placeholder="e.g. Ayam Masak Merah" autocomplete="off">
+                        </div>
+                        <div class="form-group">
+                            <label for="recipeCuisine">Cuisine *</label>
+                            <select id="recipeCuisine">
+                                <option value="">Select cuisine</option>
+                                <option value="Malay">Malay</option>
+                                <option value="Chinese">Chinese</option>
+                                <option value="Indian">Indian</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="recipeDifficulty">Difficulty *</label>
+                            <select id="recipeDifficulty">
+                                <option value="">Select difficulty</option>
+                                <option value="easy">Easy</option>
+                                <option value="medium">Medium</option>
+                                <option value="hard">Hard</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="recipePrepTime">Prep Time (minutes) *</label>
+                            <input type="number" id="recipePrepTime" placeholder="e.g. 30" min="1">
+                        </div>
+                        <div class="form-group">
+                            <label for="recipeServings">Servings *</label>
+                            <input type="number" id="recipeServings" placeholder="e.g. 4" min="1">
+                        </div>
+                    </div>
+
+                    <!-- Dietary Tags -->
+                    <div class="form-group">
+                        <label>Dietary Tags *</label>
+                        <div class="dietary-checkboxes">
+                            <label class="checkbox-label">
+                                <input type="checkbox" value="halal"> Halal
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" value="vegetarian"> Vegetarian
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" value="vegan"> Vegan
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" value="non-halal"> Non-Halal
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Recipe Image Upload -->
+                    <div class="form-group full-width">
+                        <label for="recipeImageFile">Recipe Image (optional)</label>
+                        <input type="file" id="recipeImageFile" accept="image/*">
+                        <p style="font-size:0.8rem; color:#999; margin-top:0.3rem;">
+                            Accepted formats: jpg, jpeg, png, webp. If not uploaded, a default image will be used.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Nutrition -->
+                <div class="form-section">
+                    <h3 class="form-section-title">🔥 Nutritional Information (per serving)</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="nutritionCalories">Calories (kcal)</label>
+                            <input type="number" id="nutritionCalories" placeholder="e.g. 450" min="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="nutritionProtein">Protein (g)</label>
+                            <input type="number" id="nutritionProtein" placeholder="e.g. 25" min="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="nutritionCarbs">Carbohydrates (g)</label>
+                            <input type="number" id="nutritionCarbs" placeholder="e.g. 55" min="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="nutritionFat">Fat (g)</label>
+                            <input type="number" id="nutritionFat" placeholder="e.g. 18" min="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="nutritionFibre">Fibre (g)</label>
+                            <input type="number" id="nutritionFibre" placeholder="e.g. 4" min="0">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ingredients -->
+                <div class="form-section">
+                    <h3 class="form-section-title">🥗 Ingredients *</h3>
+                    <div id="ingredientsList" class="ingredients-form-list">
+                        <!-- populated by JS -->
+                    </div>
+                    <button type="button" id="addIngredientBtn" class="btn-add-row">
+                        + Add Ingredient
+                    </button>
+                </div>
+
+                <!-- Instructions -->
+                <div class="form-section">
+                    <h3 class="form-section-title">👨‍🍳 Cooking Instructions *</h3>
+                    <div id="instructionsList" class="instructions-form-list">
+                        <!-- populated by JS -->
+                    </div>
+                    <button type="button" id="addInstructionBtn" class="btn-add-row">
+                        + Add Step
+                    </button>
+                </div>
+
+                <!-- Submit -->
+                <div class="form-submit-area">
+                    <p id="formMessage" class="form-message"></p>
+                    <button type="button" id="submitRecipeBtn" class="btn-primary">
+                        💾 Save Recipe
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Smart Recipee</p>
+        </div>
+    </footer>
+
+    <script src="js/add-recipe.js"></script>
+</body>
+</html>

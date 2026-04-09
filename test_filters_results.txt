@@ -1,0 +1,418 @@
+﻿Loaded 100 recipes
+
+================================================================================
+FILTERING SYSTEM TEST ΓÇö 100 Recipe Malaysian Database
+================================================================================
+
+--- AVAILABLE FILTER OPTIONS ---
+Dietary Options: halal, non-halal, vegan, vegetarian
+Cuisines: Chinese, Indian, Malay
+Prep Time Range: 10-120 minutes
+Time Categories: quick, medium, long
+
+================================================================================
+TEST 1: Dietary Filter - Vegetarian Only
+================================================================================
+
+Before filter: 100 recipes
+  - Nasi Lemak (halal)
+  - Roti Jala (vegetarian, halal)
+  - Nasi Impit (vegetarian, vegan, halal)
+  - Apam Balik (vegetarian, halal)
+  - Kuih Seri Muka (vegetarian, halal)
+
+After vegetarian filter: 39 recipes
+  Γ£ô Roti Jala
+    Dietary: vegetarian, halal
+    Match: 28.6%
+
+  Γ£ô Nasi Impit
+    Dietary: vegetarian, vegan, halal
+    Match: 25.0%
+
+  Γ£ô Apam Balik
+    Dietary: vegetarian, halal
+    Match: 22.2%
+
+  Γ£ô Kuih Seri Muka
+    Dietary: vegetarian, halal
+    Match: 22.2%
+
+  Γ£ô Egg Fried Rice
+    Dietary: vegetarian, halal
+    Match: 22.2%
+
+================================================================================
+TEST 2: Dietary Filter - Halal Only
+================================================================================
+
+Before filter: 100 recipes
+  - Nasi Goreng Kampung (halal)
+  - Nasi Lemak (halal)
+  - Nasi Kandar (halal)
+  - Bubur Lambuk (halal)
+  - Egg Fried Rice (vegetarian, halal)
+
+After halal filter: 97 recipes
+Showing first 5 halal recipes:
+  Γ£ô Nasi Goreng Kampung (Malay) - 40.0%
+  Γ£ô Nasi Lemak (Malay) - 37.5%
+  Γ£ô Nasi Kandar (Indian) - 33.3%
+  Γ£ô Bubur Lambuk (Malay) - 33.3%
+  Γ£ô Egg Fried Rice (Chinese) - 33.3%
+
+================================================================================
+TEST 3: Prep Time Filter - Quick Recipes (Γëñ30 minutes)
+================================================================================
+
+Before filter: 100 recipes
+  - Nasi Lemak (45 min)
+  - Roti Jala (30 min)
+  - Nasi Impit (40 min)
+  - Apam Balik (35 min)
+  - Kuih Seri Muka (90 min)
+
+After 'quick' filter (Γëñ30 min): 28 recipes
+  Γ£ô Roti Jala
+    Prep Time: 30 minutes
+    Match: 28.6%
+
+  Γ£ô Egg Fried Rice
+    Prep Time: 20 minutes
+    Match: 22.2%
+
+  Γ£ô Nasi Goreng Kampung
+    Prep Time: 25 minutes
+    Match: 20.0%
+
+  Γ£ô Steamed Egg
+    Prep Time: 20 minutes
+    Match: 16.7%
+
+  Γ£ô Cendol
+    Prep Time: 30 minutes
+    Match: 12.5%
+
+================================================================================
+TEST 4: Cuisine Filter - Malay Cuisine Only
+================================================================================
+
+Before filter: 100 recipes
+  - Nasi Lemak (Malay)
+  - Nasi Impit (Malay)
+  - Kuih Seri Muka (Malay)
+  - Kuih Dadar (Malay)
+  - Roti Jala (Malay)
+
+After Malay filter: 54 recipes
+  Γ£ô Nasi Lemak
+    Prep Time: 45 minutes
+    Match: 50.0%
+
+  Γ£ô Nasi Impit
+    Prep Time: 40 minutes
+    Match: 50.0%
+
+  Γ£ô Kuih Seri Muka
+    Prep Time: 90 minutes
+    Match: 33.3%
+
+  Γ£ô Kuih Dadar
+    Prep Time: 45 minutes
+    Match: 33.3%
+
+  Γ£ô Roti Jala
+    Prep Time: 30 minutes
+    Match: 28.6%
+
+================================================================================
+TEST 5: Cuisine Filter - Indian Cuisine Only
+================================================================================
+
+Before filter: 100 recipes
+  - Roti Canai (Indian)
+  - Roti Telur (Indian)
+  - Murtabak (Indian)
+  - Roti Jala (Malay)
+  - Teh Tarik (Indian)
+
+After Indian filter: 23 recipes
+  Γ£ô Roti Canai
+    Prep Time: 60 minutes
+    Match: 42.9%
+
+  Γ£ô Roti Telur
+    Prep Time: 40 minutes
+    Match: 42.9%
+
+  Γ£ô Murtabak
+    Prep Time: 50 minutes
+    Match: 33.3%
+
+  Γ£ô Teh Tarik
+    Prep Time: 10 minutes
+    Match: 25.0%
+
+  Γ£ô Chapati
+    Prep Time: 30 minutes
+    Match: 25.0%
+
+================================================================================
+TEST 6: Difficulty Filter - Easy Recipes Only
+================================================================================
+
+Before filter: 100 recipes
+  - Nasi Goreng Kampung (difficulty: easy)
+  - Egg Fried Rice (difficulty: easy)
+  - Hainanese Chicken Rice (difficulty: medium)
+  - Bubur Ayam (difficulty: easy)
+  - Chicken Congee (difficulty: easy)
+
+After easy difficulty filter: 31 recipes
+  Γ£ô Nasi Goreng Kampung
+    Difficulty: easy
+    Prep Time: 25 minutes
+    Match: 40.0%
+
+  Γ£ô Egg Fried Rice
+    Difficulty: easy
+    Prep Time: 20 minutes
+    Match: 33.3%
+
+  Γ£ô Bubur Ayam
+    Difficulty: easy
+    Prep Time: 40 minutes
+    Match: 30.0%
+
+  Γ£ô Chicken Congee
+    Difficulty: easy
+    Prep Time: 50 minutes
+    Match: 30.0%
+
+  Γ£ô Nasi Impit
+    Difficulty: easy
+    Prep Time: 40 minutes
+    Match: 25.0%
+
+================================================================================
+TEST 7: Combined Filters - Vegetarian + Malay Cuisine
+================================================================================
+
+Before filter: 100 recipes
+  - Nasi Lemak: Malay, halal, 45 min
+  - Roti Jala: Malay, vegetarian, halal, 30 min
+  - Nasi Impit: Malay, vegetarian, vegan, halal, 40 min
+  - Apam Balik: Malay, vegetarian, halal, 35 min
+  - Kuih Seri Muka: Malay, vegetarian, halal, 90 min
+
+After combined filters (Vegetarian + Malay): 18 recipes
+  Γ£ô Roti Jala
+    Cuisine: Malay
+    Dietary: vegetarian, halal
+    Prep Time: 30 minutes
+    Match: 28.6%
+
+  Γ£ô Nasi Impit
+    Cuisine: Malay
+    Dietary: vegetarian, vegan, halal
+    Prep Time: 40 minutes
+    Match: 25.0%
+
+  Γ£ô Apam Balik
+    Cuisine: Malay
+    Dietary: vegetarian, halal
+    Prep Time: 35 minutes
+    Match: 22.2%
+
+  Γ£ô Kuih Seri Muka
+    Cuisine: Malay
+    Dietary: vegetarian, halal
+    Prep Time: 90 minutes
+    Match: 22.2%
+
+  Γ£ô Kuih Dadar
+    Cuisine: Malay
+    Dietary: vegetarian, vegan, halal
+    Prep Time: 45 minutes
+    Match: 22.2%
+
+================================================================================
+TEST 8: Triple Filters - Vegetarian + Quick (Γëñ30 min) + Indian
+================================================================================
+
+Before filter: 100 recipes
+  - Roti Canai: Indian, vegetarian, halal, 60 min
+  - Roti Telur: Indian, vegetarian, halal, 40 min
+  - Murtabak: Indian, halal, 50 min
+  - Roti Jala: Malay, vegetarian, halal, 30 min
+  - Teh Tarik: Indian, vegetarian, halal, 10 min
+
+After triple filters: 5 recipes
+  Γ£ô Teh Tarik
+    Cuisine: Indian
+    Dietary: vegetarian, halal
+    Prep Time: 10 minutes
+    Match: 25.0%
+
+  Γ£ô Chapati
+    Cuisine: Indian
+    Dietary: vegetarian, vegan, halal
+    Prep Time: 30 minutes
+    Match: 25.0%
+
+  Γ£ô Dhal Curry
+    Cuisine: Indian
+    Dietary: vegetarian, vegan, halal
+    Prep Time: 30 minutes
+    Match: 0.0%
+
+  Γ£ô Rasam
+    Cuisine: Indian
+    Dietary: vegetarian, vegan, halal
+    Prep Time: 25 minutes
+    Match: 0.0%
+
+  Γ£ô Aloo Gobi
+    Cuisine: Indian
+    Dietary: vegetarian, vegan, halal
+    Prep Time: 30 minutes
+    Match: 0.0%
+
+================================================================================
+TEST 9: Quad Filters - Halal + Malay + Easy + Quick
+================================================================================
+
+Before filter: 100 recipes
+  - Nasi Goreng Kampung: Malay, halal, 25 min, difficulty: easy
+  - Nasi Lemak: Malay, halal, 45 min, difficulty: medium
+  - Nasi Kandar: Indian, halal, 60 min, difficulty: hard
+  - Bubur Lambuk: Malay, halal, 60 min, difficulty: medium
+  - Egg Fried Rice: Chinese, vegetarian, halal, 20 min, difficulty: easy
+
+After quad filters (Halal + Malay + Easy + Quick): 12 recipes
+  Γ£ô Nasi Goreng Kampung
+    Cuisine: Malay
+    Dietary: halal
+    Difficulty: easy
+    Prep Time: 25 minutes
+    Match: 40.0%
+
+  Γ£ô Tom Yam Ayam
+    Cuisine: Malay
+    Dietary: halal
+    Difficulty: easy
+    Prep Time: 30 minutes
+    Match: 18.2%
+
+  Γ£ô Cendol
+    Cuisine: Malay
+    Dietary: vegetarian, vegan, halal
+    Difficulty: easy
+    Prep Time: 30 minutes
+    Match: 12.5%
+
+  Γ£ô Sambal Tumis Udang
+    Cuisine: Malay
+    Dietary: halal
+    Difficulty: easy
+    Prep Time: 25 minutes
+    Match: 11.1%
+
+  Γ£ô Nasi Ulam
+    Cuisine: Malay
+    Dietary: halal
+    Difficulty: easy
+    Prep Time: 30 minutes
+    Match: 10.0%
+
+  Γ£ô Cucur Udang
+    Cuisine: Malay
+    Dietary: halal
+    Difficulty: easy
+    Prep Time: 20 minutes
+    Match: 9.1%
+
+  Γ£ô Pecal
+    Cuisine: Malay
+    Dietary: vegetarian, vegan, halal
+    Difficulty: easy
+    Prep Time: 25 minutes
+    Match: 9.1%
+
+  Γ£ô Gado-Gado
+    Cuisine: Malay
+    Dietary: vegetarian, vegan, halal
+    Difficulty: easy
+    Prep Time: 30 minutes
+    Match: 8.3%
+
+  Γ£ô Acar
+    Cuisine: Malay
+    Dietary: vegetarian, vegan, halal
+    Difficulty: easy
+    Prep Time: 25 minutes
+    Match: 8.3%
+
+  Γ£ô Rojak
+    Cuisine: Malay
+    Dietary: vegetarian, halal
+    Difficulty: easy
+    Prep Time: 20 minutes
+    Match: 0.0%
+
+  Γ£ô Sambal Belacan
+    Cuisine: Malay
+    Dietary: halal
+    Difficulty: easy
+    Prep Time: 15 minutes
+    Match: 0.0%
+
+  Γ£ô Kerabu Mangga
+    Cuisine: Malay
+    Dietary: vegetarian, vegan, halal
+    Difficulty: easy
+    Prep Time: 20 minutes
+    Match: 0.0%
+
+================================================================================
+TEST 10: Exact Prep Time - Maximum 30 Minutes
+================================================================================
+
+Before filter: 100 recipes
+  - Nasi Goreng Kampung (25 min)
+  - Nasi Lemak (45 min)
+  - Nasi Kandar (60 min)
+  - Bubur Lambuk (60 min)
+  - Egg Fried Rice (20 min)
+
+After max 30 minutes filter: 28 recipes
+  Γ£ô Nasi Goreng Kampung
+    Prep Time: 25 minutes
+    Match: 40.0%
+
+  Γ£ô Egg Fried Rice
+    Prep Time: 20 minutes
+    Match: 33.3%
+
+  Γ£ô Roti Jala
+    Prep Time: 30 minutes
+    Match: 28.6%
+
+  Γ£ô Char Kway Teow
+    Prep Time: 30 minutes
+    Match: 20.0%
+
+  Γ£ô Kuey Teow Soup
+    Prep Time: 30 minutes
+    Match: 18.2%
+
+================================================================================
+FILTER TEST SUMMARY
+================================================================================
+
+  Total recipes in database : 100
+  Tests conducted           : 10
+  New filters tested        : Difficulty (Test 6, 9)
+  Filter combinations tested: Single, Double, Triple, Quad
+  All filter types verified : Dietary, Cuisine, Prep Time, Difficulty
+

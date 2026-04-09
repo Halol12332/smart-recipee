@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipe Details - Smart Recipee</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <div class="header-top">
+                <div>
+                    <h1>Smart Recipee</h1>
+                    <p class="subtitle">Your Trustful Recipe Recommender</p>
+                </div>
+                <nav class="header-nav">
+                    <a href="index.html" class="nav-link">🏠 Home</a>
+                    <a href="browse.html" class="nav-link">🍽️ Recipes</a>
+                    <a href="history.html" class="nav-link">❤️ Favourites & History</a>
+                    <a href="meal-planner.html" class="nav-link">📅 Meal Planner</a>
+                    <a href="chat.html" class="nav-link">🤖 Assistant</a>
+                    <a href="add-recipe.html" class="nav-link">➕ Add Recipe</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container">
+        <!-- Back Button -->
+        <div class="back-button-container">
+            <button onclick="goBack()" class="btn-back">
+                ← Back to Recipes
+            </button>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loadingIndicator" class="loading">
+            <p>🔄 Loading recipe...</p>
+        </div>
+
+        <!-- Error State -->
+        <div id="errorMessage" class="error-message" style="display: none;">
+            <p>⚠️ <span id="errorText"></span></p>
+            <button onclick="goBack()" class="btn-primary" style="margin-top: 1rem;">
+                Back to Recipes
+            </button>
+        </div>
+
+        <!-- Recipe Detail Container -->
+        <div id="recipeDetail" class="recipe-detail" style="display: none;">
+            <!-- Recipe Header -->
+            <section class="detail-header">
+                <img id="recipeImage" class="recipe-detail-image" alt="Recipe Image" style="display: none;">
+                <h1 id="recipeName" class="detail-title">Recipe Name</h1>
+                
+                <div class="detail-meta">
+                    <span id="recipeCuisine" class="meta-item">🍽️ Cuisine</span>
+                    <span id="recipePrepTime" class="meta-item">⏱️ Time</span>
+                    <span id="recipeServings" class="meta-item">👥 Servings</span>
+                    <span id="recipeDifficulty" class="meta-item">💪 Difficulty</span>
+                </div>
+
+                <div id="recipeDietary" class="dietary-tags">
+                    <!-- Dietary tags will be inserted here -->
+                </div>
+
+                <div id="matchBadge" class="match-badge-large">
+                    <!-- Match percentage will be inserted here -->
+                </div>
+            </section>
+
+            <!-- Nutrition Section -->
+            <section id="nutritionSection" class="detail-section" style="display: none;">
+                <h2 class="section-title">🔥 Nutritional Info</h2>
+                <div class="nutrition-grid">
+                    <div class="nutrition-card">
+                        <span class="nutrition-value" id="nutritionCalories">—</span>
+                        <span class="nutrition-label">Calories (kcal)</span>
+                    </div>
+                    <div class="nutrition-card">
+                        <span class="nutrition-value" id="nutritionProtein">—</span>
+                        <span class="nutrition-label">Protein (g)</span>
+                    </div>
+                    <div class="nutrition-card">
+                        <span class="nutrition-value" id="nutritionCarbs">—</span>
+                        <span class="nutrition-label">Carbs (g)</span>
+                    </div>
+                    <div class="nutrition-card">
+                        <span class="nutrition-value" id="nutritionFat">—</span>
+                        <span class="nutrition-label">Fat (g)</span>
+                    </div>
+                    <div class="nutrition-card">
+                        <span class="nutrition-value" id="nutritionFibre">—</span>
+                        <span class="nutrition-label">Fibre (g)</span>
+                    </div>
+                </div>
+                <p class="nutrition-note">* Per serving estimate</p>
+            </section>
+
+            <!-- Ingredients Section -->
+            <section class="detail-section">
+                <h2 class="section-title">📝 Ingredients</h2>
+                <div id="ingredientsList" class="ingredients-detail-list">
+                    <!-- Ingredients will be inserted here -->
+                </div>
+            </section>
+
+            <!-- Instructions Section -->
+            <section class="detail-section">
+                <h2 class="section-title">👨‍🍳 Cooking Instructions</h2>
+                <ol id="instructionsList" class="instructions-list">
+                    <!-- Instructions will be inserted here -->
+                </ol>
+            </section>
+
+            <!-- Ratings Section -->
+            <section class="detail-section" id="ratingsSection">
+                <h2 class="section-title">⭐ Ratings & Reviews</h2>
+
+                <div class="rating-summary" id="ratingSummary">
+                    <span class="rating-average" id="ratingAverage">—</span>
+                    <div class="rating-stars-display" id="ratingStarsDisplay"></div>
+                    <span class="rating-total" id="ratingTotal">No ratings yet</span>
+                </div>
+
+                <div class="rating-form" id="ratingForm">
+                    <h3 class="rating-form-title">Rate this recipe</h3>
+                    <div class="star-input" id="starInput">
+                        <span class="star" data-value="1">★</span>
+                        <span class="star" data-value="2">★</span>
+                        <span class="star" data-value="3">★</span>
+                        <span class="star" data-value="4">★</span>
+                        <span class="star" data-value="5">★</span>
+                    </div>
+                    <p class="rating-selected-text" id="ratingSelectedText">Click a star to rate</p>
+                    <textarea
+                        id="ratingComment"
+                        class="rating-comment"
+                        placeholder="Share your thoughts about this recipe (optional)..."
+                        rows="3"
+                    ></textarea>
+                    <button id="submitRatingBtn" class="btn-primary" type="button">Submit Rating</button>
+                    <p id="ratingMessage" class="rating-message"></p>
+                </div>
+
+                <div class="rating-comments-wrapper">
+                    <button id="toggleReviewsBtn" class="toggle-reviews-btn" style="display: none;" type="button">
+                        ▼ Show Reviews
+                    </button>
+                    <div class="rating-comments" id="ratingComments" style="display: none;">
+                        <!-- populated by JS -->
+                    </div>
+                </div>
+
+            </section>
+
+            <!-- Action Buttons -->
+            <div class="detail-actions">
+                <button onclick="goBack()" class="btn-secondary">
+                    ← Back to Recipes
+                </button>
+                <button id="favouriteBtn" class="btn-favourite" type="button">
+                    ♡ Add to Favourites
+                </button>
+                <button id="cookedBtn" class="btn-cooked" type="button">
+                    🍳 Mark as Cooked
+                </button>
+                <button id="editRecipeBtn" class="btn-edit-recipe" type="button" style="display:none;">
+                    ✏️ Edit Recipe
+                </button>
+                <button id="deleteRecipeBtn" class="btn-delete-recipe" type="button" style="display:none;">
+                    🗑️ Delete Recipe
+                </button>
+            </div>
+            
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Smart Recipee </p>
+        </div>
+    </footer>
+
+    <!-- Link to JavaScript -->
+    <script src="js/detail.js"></script>
+</body>
+</html>

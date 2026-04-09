@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meal Planner - Smart Recipee</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-top">
+                <div>
+                    <h1>Smart Recipee</h1>
+                    <p class="subtitle">Your Trustful Recipe Recommender</p>
+                </div>
+                <nav class="header-nav">
+                    <a href="index.html" class="nav-link">🏠 Home</a>
+                    <a href="browse.html" class="nav-link">🍽️ Recipes</a>
+                    <a href="history.html" class="nav-link">❤️ Favourites & History</a>
+                    <a href="meal-planner.html" class="nav-link active">📅 Meal Planner</a>
+                    <a href="chat.html" class="nav-link">🤖 Assistant</a>
+                    <a href="add-recipe.html" class="nav-link">➕ Add Recipe</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="planner-page">
+
+            <!-- Page Header -->
+            <div class="planner-header">
+                <div>
+                    <h2 class="planner-title">📅 Weekly Meal Planner</h2>
+                    <p class="planner-subtitle">Auto-generates a 7-day lunch and dinner plan based on your ingredients, favourites and preferences</p>
+                </div>
+            </div>
+
+            <!-- Controls -->
+            <div class="planner-controls">
+                <div class="planner-filter">
+                    <label for="lunchCalorieFilter">Max calories — Lunch</label>
+                    <select id="lunchCalorieFilter">
+                        <option value="">No limit</option>
+                        <option value="300">Under 300 kcal</option>
+                        <option value="400" selected>Under 400 kcal</option>
+                        <option value="500">Under 500 kcal</option>
+                    </select>
+                </div>
+                <div class="planner-filter">
+                    <label for="dinnerCalorieFilter">Max calories — Dinner</label>
+                    <select id="dinnerCalorieFilter">
+                        <option value="">No limit</option>
+                        <option value="500">Under 500 kcal</option>
+                        <option value="600">Under 600 kcal</option>
+                        <option value="700" selected>Under 700 kcal</option>
+                    </select>
+                </div>
+                <button id="generatePlanBtn" class="btn-primary" type="button">
+                    ✨ Generate Meal Plan
+                </button>
+                <button id="clearPlanBtn" class="btn-danger" type="button" style="display:none;">
+                    🗑️ Clear Plan
+                </button>
+            </div>
+
+            <!-- Algorithm Info -->
+            <div class="planner-algo-info" id="algoInfo" style="display:none;">
+                <p id="algoInfoText"></p>
+            </div>
+
+            <!-- Loading -->
+            <div id="plannerLoading" class="loading" style="display:none;">
+                <p>✨ Generating your personalised meal plan...</p>
+            </div>
+
+            <!-- 7-Day Grid -->
+            <div id="plannerGrid" class="planner-grid" style="display:none;">
+                <!-- populated by JS -->
+            </div>
+
+            <!-- Weekly Shopping List -->
+            <div id="weeklyShoppingSection" class="weekly-shopping-section" style="display:none;">
+                <div class="weekly-shopping-header">
+                    <h2>🛒 Weekly Shopping List</h2>
+                    <p class="weekly-shopping-subtitle">Missing ingredients across all your planned meals</p>
+                </div>
+                <div id="weeklyShoppingItems" class="shopping-list-items"></div>
+                <div class="shopping-list-actions">
+                    <button id="printWeeklyListBtn" class="btn-primary" type="button">🖨️ Print List</button>
+                    <button id="downloadWeeklyListBtn" class="btn-secondary" type="button">⬇️ Download .txt</button>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Smart Recipee</p>
+        </div>
+    </footer>
+
+    <script src="js/meal-planner.js"></script>
+</body>
+</html>

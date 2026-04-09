@@ -1,0 +1,266 @@
+﻿Loaded 100 recipes from database
+
+================================================================================
+SMART RECIPEE ΓÇö MATCHER ALGORITHM COMPARISON
+Metrics: Accuracy | Precision | Recall | F1 Score | Speed
+================================================================================
+
+================================================================================
+TEST: Test Case 1 ΓÇö Perfect Match (Nasi Lemak)
+Ingredients: rice, coconut milk, pandan leaves, egg, cucumber, peanuts, ikan bilis, sambal
+Expected: Nasi Lemak
+================================================================================
+
+  [EXACT]
+  Top Match   : Nasi Lemak
+  Accuracy    : 100.0%
+  Precision   : 100.0%
+  Recall      : 100.0%
+  F1 Score    : 100.0%
+  Speed       : 0.62ms
+  Matched     : 8/8
+  Missing     : 
+
+  [NORMALIZED]
+  Top Match   : Nasi Lemak
+  Accuracy    : 100.0%
+  Precision   : 100.0%
+  Recall      : 100.0%
+  F1 Score    : 100.0%
+  Speed       : 2.78ms
+  Matched     : 8/8
+  Missing     : 
+
+  [FUZZY]
+  Top Match   : Nasi Lemak
+  Accuracy    : 100.0%
+  Precision   : 100.0%
+  Recall      : 100.0%
+  F1 Score    : 100.0%
+  Speed       : 79.29ms
+  Matched     : 8/8
+  Missing     : 
+
+  [HYBRID]
+  Top Match   : Nasi Lemak
+  Accuracy    : 100.0%
+  Precision   : 100.0%
+  Recall      : 100.0%
+  F1 Score    : 100.0%
+  Speed       : 77.14ms
+  Matched     : 8/8
+  Missing     : 
+
+  [JACCARD]
+  Top Match   : Nasi Lemak
+  Accuracy    : 100.0%
+  Precision   : 100.0%
+  Recall      : 100.0%
+  F1 Score    : 100.0%
+  Speed       : 2.99ms
+  Matched     : 8/8
+  Missing     : 
+
+================================================================================
+TEST: Test Case 2 ΓÇö Ingredient Variation (chicken vs chicken breast)
+Ingredients: rice, chicken, egg, soy sauce, garlic
+Expected: Hainanese Chicken Rice or similar
+================================================================================
+
+  [EXACT]
+  Top Match   : Egg Fried Rice
+  Accuracy    : 44.4%
+  Precision   : 100.0%
+  Recall      : 80.0%
+  F1 Score    : 88.9%
+  Speed       : 0.65ms
+  Matched     : 4/9
+  Missing     : salt, spring onion, vegetable oil
+              + 2 more...
+
+  [NORMALIZED]
+  Top Match   : Egg Fried Rice
+  Accuracy    : 44.4%
+  Precision   : 100.0%
+  Recall      : 80.0%
+  F1 Score    : 88.9%
+  Speed       : 2.35ms
+  Matched     : 4/9
+  Missing     : salt, oil, spring onion
+              + 2 more...
+
+  [FUZZY]
+  Top Match   : Egg Fried Rice
+  Accuracy    : 44.4%
+  Precision   : 100.0%
+  Recall      : 80.0%
+  F1 Score    : 88.9%
+  Speed       : 45.33ms
+  Matched     : 4/9
+  Missing     : spring onion, sesame oil, vegetable oil
+              + 2 more...
+
+  [HYBRID]
+  Top Match   : Egg Fried Rice
+  Accuracy    : 44.4%
+  Precision   : 100.0%
+  Recall      : 80.0%
+  F1 Score    : 88.9%
+  Speed       : 42.31ms
+  Matched     : 4/9
+  Missing     : spring onion, sesame oil, oil
+              + 2 more...
+
+  [JACCARD]
+  Top Match   : Egg Fried Rice
+  Accuracy    : 40.0%
+  Precision   : 100.0%
+  Recall      : 80.0%
+  F1 Score    : 88.9%
+  Speed       : 2.54ms
+  Matched     : 4/9
+  Missing     : salt, oil, spring onion
+              + 2 more...
+
+================================================================================
+TEST: Test Case 3 ΓÇö Typo Handling (chicekn instead of chicken)
+Ingredients: rice, chicekn, egg, soy sauce, garlic
+Expected: Chicken-based recipe (if fuzzy/hybrid works)
+================================================================================
+
+  [EXACT]
+  Top Match   : Egg Fried Rice
+  Accuracy    : 44.4%
+  Precision   : 100.0%
+  Recall      : 80.0%
+  F1 Score    : 88.9%
+  Speed       : 0.49ms
+  Matched     : 4/9
+  Missing     : salt, spring onion, vegetable oil
+              + 2 more...
+
+  [NORMALIZED]
+  Top Match   : Egg Fried Rice
+  Accuracy    : 44.4%
+  Precision   : 100.0%
+  Recall      : 80.0%
+  F1 Score    : 88.9%
+  Speed       : 2.38ms
+  Matched     : 4/9
+  Missing     : salt, oil, spring onion
+              + 2 more...
+
+  [FUZZY]
+  Top Match   : Egg Fried Rice
+  Accuracy    : 44.4%
+  Precision   : 100.0%
+  Recall      : 80.0%
+  F1 Score    : 88.9%
+  Speed       : 47.79ms
+  Matched     : 4/9
+  Missing     : spring onion, sesame oil, vegetable oil
+              + 2 more...
+
+  [HYBRID]
+  Top Match   : Egg Fried Rice
+  Accuracy    : 44.4%
+  Precision   : 100.0%
+  Recall      : 80.0%
+  F1 Score    : 88.9%
+  Speed       : 43.57ms
+  Matched     : 4/9
+  Missing     : spring onion, sesame oil, oil
+              + 2 more...
+
+  [JACCARD]
+  Top Match   : Egg Fried Rice
+  Accuracy    : 40.0%
+  Precision   : 100.0%
+  Recall      : 80.0%
+  F1 Score    : 88.9%
+  Speed       : 2.71ms
+  Matched     : 4/9
+  Missing     : salt, oil, spring onion
+              + 2 more...
+
+================================================================================
+TEST: Test Case 4 ΓÇö Limited Ingredients
+Ingredients: rice, egg
+Expected: Any rice or egg based recipe
+================================================================================
+
+  [EXACT]
+  Top Match   : Nasi Lemak
+  Accuracy    : 25.0%
+  Precision   : 100.0%
+  Recall      : 100.0%
+  F1 Score    : 100.0%
+  Speed       : 0.47ms
+  Matched     : 2/8
+  Missing     : cucumber, sambal, coconut milk
+              + 3 more...
+
+  [NORMALIZED]
+  Top Match   : Nasi Lemak
+  Accuracy    : 25.0%
+  Precision   : 100.0%
+  Recall      : 100.0%
+  F1 Score    : 100.0%
+  Speed       : 1.94ms
+  Matched     : 2/8
+  Missing     : cucumber, sambal, coconut milk
+              + 3 more...
+
+  [FUZZY]
+  Top Match   : Nasi Lemak
+  Accuracy    : 25.0%
+  Precision   : 100.0%
+  Recall      : 100.0%
+  F1 Score    : 100.0%
+  Speed       : 15.87ms
+  Matched     : 2/8
+  Missing     : coconut milk, pandan leaves, cucumber
+              + 3 more...
+
+  [HYBRID]
+  Top Match   : Nasi Lemak
+  Accuracy    : 25.0%
+  Precision   : 100.0%
+  Recall      : 100.0%
+  F1 Score    : 100.0%
+  Speed       : 16.54ms
+  Matched     : 2/8
+  Missing     : coconut milk, pandan leaves, cucumber
+              + 3 more...
+
+  [JACCARD]
+  Top Match   : Nasi Lemak
+  Accuracy    : 25.0%
+  Precision   : 100.0%
+  Recall      : 100.0%
+  F1 Score    : 100.0%
+  Speed       : 2.10ms
+  Matched     : 2/8
+  Missing     : cucumber, sambal, coconut milk
+              + 3 more...
+
+
+================================================================================
+SUMMARY ΓÇö AVERAGE ACROSS ALL TEST CASES
+================================================================================
+
+Algorithm         Accuracy  Precision     Recall   F1 Score    Avg Speed
+----------------------------------------------------------------------
+exact                53.5%     100.0%      90.0%      94.5%       0.56
+normalized           53.5%     100.0%      90.0%      94.5%       2.36
+fuzzy                53.5%     100.0%      90.0%      94.5%      47.07
+hybrid               53.5%     100.0%      90.0%      94.5%      44.89
+jaccard              51.2%     100.0%      90.0%      94.5%       2.58
+
+Γ£à Graph 1 saved: evaluation_graphs/graph1_accuracy.png
+Γ£à Graph 2 saved: evaluation_graphs/graph2_speed.png
+Γ£à Graph 3 saved: evaluation_graphs/graph3_precision_recall_f1.png
+Γ£à Graph 4 saved: evaluation_graphs/graph4_full_comparison.png
+Γ£à Graph 5 saved: evaluation_graphs/graph5_accuracy_per_testcase.png
+
+Γ£à All 5 graphs saved to evaluation_graphs/ folder

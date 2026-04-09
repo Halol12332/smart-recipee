@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Recipee - Recipe Recommendations</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-top">
+                <div>
+                    <h1>Smart Recipee</h1>
+                    <p class="subtitle">Your Trustful Recipe Recommender</p>
+                </div>
+                <nav class="header-nav">
+                    <a href="index.html" class="nav-link">🏠 Home</a>
+                    <a href="browse.html" class="nav-link">🍽️ Recipes</a>
+                    <a href="history.html" class="nav-link">❤️ Favourites & History</a>
+                    <a href="meal-planner.html" class="nav-link">📅 Meal Planner</a>
+                    <a href="chat.html" class="nav-link">🤖 Assistant</a>
+                    <a href="add-recipe.html" class="nav-link">➕ Add Recipe</a> 
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="upload-section">
+            <h2>Upload Fridge Photo</h2>
+            <p class="hint">Upload an image to detect ingredients first. Then review, edit, and confirm before recipe recommendations are shown.</p>
+
+            <div class="upload-row" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                <input id="imageUpload" type="file" accept="image/*" capture="environment">
+                
+                <select id="modelSelect" style="padding: 0.6rem; border-radius: 4px; border: 1px solid #ccc; font-size: 1rem; background-color: white;">
+                    <option value="rt-detr">RT-DETR (Primary)</option>
+                    <option value="yolov8">YOLOv8 (Fast)</option>
+                </select>
+
+                <button id="detectBtn" class="btn-primary" type="button">Detect Ingredients</button>
+            </div>
+
+            <p id="uploadStatus" class="results-count" style="margin-top: 0.5rem;"></p>
+            
+        </section>
+
+        <section class="preview-section">
+            <h2>Detection Preview</h2>
+            <div id="detectionPreview" class="detection-preview" style="display: none;">
+                
+                <div class="zoom-controls" style="text-align: right; margin-bottom: 8px;">
+                    <button type="button" id="zoomOutBtn" class="btn-secondary" style="padding: 5px 10px; font-size: 14px;">➖</button>
+                    <button type="button" id="zoomResetBtn" class="btn-outline" style="padding: 5px 10px; font-size: 14px;">Reset</button>
+                    <button type="button" id="zoomInBtn" class="btn-secondary" style="padding: 5px 10px; font-size: 14px;">➕</button>
+                </div>
+
+                <div id="imageZoomContainer" style="position: relative; overflow: auto; max-height: 600px; border: 1px solid #ede9fe; border-radius: 8px; text-align: center; display: flex; justify-content: center;">
+                    
+                    <div id="canvasWrapper" style="position: relative; display: inline-block;">
+                        <img id="annotatedPreviewImage" class="annotated-preview-image" alt="Annotated detection result" style="transform-origin: top left; transition: transform 0.2s ease; display: block;">
+                        
+                        <canvas id="annotationCanvas" style="position: absolute; top: 0; left: 0; cursor: crosshair; display: none; z-index: 10; transform-origin: top left; transition: transform 0.2s ease;"></canvas>
+                    </div>
+                </div>
+
+                <div id="annotationControls" style="display: none; margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 8px; border: 1px solid #e0e0e0; text-align: left;">
+                    <h3 style="margin-top: 0; color: #333;">✏️ Fix Detection (Active Learning)</h3>
+                    <p class="hint">Click and drag on the image above to draw a bounding box around an ingredient.</p>
+                    
+                    <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 15px; flex-wrap: wrap;">
+                        <input type="text" id="annotationLabelInput" placeholder="Enter ingredient name (e.g. tomato)" style="padding: 8px; flex: 1; min-width: 200px; border: 1px solid #ccc; border-radius: 4px;">
+                        <button id="addBoxBtn" class="btn-secondary" type="button" disabled>Add Box</button>
+                        <button id="clearBoxesBtn" class="btn-outline" type="button">Clear Drawing</button>
+                    </div>
+
+                    <div style="background: white; padding: 10px; border: 1px solid #eee; border-radius: 4px; margin-bottom: 15px;">
+                        <strong>Current Boxes:</strong>
+                        <ul id="currentAnnotationsList" style="list-style: none; padding-left: 0; margin-top: 5px; margin-bottom: 0; color: #555; font-size: 0.9rem;">
+                            <li>No boxes drawn yet.</li>
+                        </ul>
+                    </div>
+
+                    <div style="display: flex; gap: 10px;">
+                        <button id="submitAnnotationsBtn" class="btn-primary" type="button" disabled>Submit to Dataset</button>
+                        <button id="cancelAnnotationBtn" class="btn-danger" type="button">Cancel</button>
+                    </div>
+                    <p id="annotationStatusMsg" style="margin-top: 10px; font-weight: bold; font-size: 0.9rem;"></p>
+                </div>
+
+                <div style="text-align: center; margin-top: 15px;">
+                    <button id="startAnnotationBtn" class="btn-outline" type="button" style="margin-bottom: 10px;">
+                        Incorrect Detection? Draw Corrections
+                    </button>
+                    
+                    <div style="font-weight: bold; margin-top: 5px;">
+                        <span style="color: #2e7d32;">🟩 Fresh / Normal</span> &nbsp;&nbsp;|&nbsp;&nbsp; 
+                        <span style="color: #d32f2f;">🟥 Spoiled / Rotten</span>
+                    </div>
+                </div>
+
+                <div id="detectionSummary" class="detection-summary"></div>
+            </div>
+        </section>
+
+        <section id="ingredientsSection" class="ingredients-section" style="display: none;">
+            <h2>Your Ingredients</h2>
+            <p id="reviewStatus" class="review-status" style="margin-bottom: 1rem; color: #666;">
+                Review your detected ingredients. Change or remove items, then confirm to get recipes.
+            </p>
+
+            <div id="ingredientsList" class="ingredients-list">
+            </div>
+
+            <div class="manual-add-row" style="margin-top: 1.5rem; max-width: 600px; margin-left: auto; margin-right: auto;">
+                <input
+                    id="manualIngredientInput"
+                    type="text"
+                    placeholder="Type missing ingredient, e.g. tomato"
+                    autocomplete="off"
+                >
+                <button id="addIngredientBtn" class="btn-secondary" type="button">Add Item</button>
+            </div>
+
+            <div class="review-actions" style="margin-top: 1.5rem; justify-content: center; gap: 1rem;">
+                <button id="confirmBtn" class="btn-primary" type="button" style="padding: 0.8rem 2rem; font-size: 1.1rem;">✨ Confirm Ingredients</button>
+                <button id="clearBtn" class="btn-danger" type="button" style="padding: 0.8rem 2rem; font-size: 1.1rem;">🗑️ Clear All</button>
+            </div>
+        </section>
+
+        <section id="almostThereSection" class="almost-there-section" style="display: none;">
+            <div class="almost-there-header">
+                <h2>🛒 Almost There!</h2>
+                <p class="almost-there-subtitle">You're just 1–2 ingredients away from making these recipes</p>
+            </div>
+            <div id="almostThereGrid" class="almost-there-grid">
+            </div>
+        </section>
+
+        <section id="shoppingListSection" class="shopping-list-section" style="display: none;">
+            <div class="shopping-list-header">
+                <h2>🛍️ Your Shopping List</h2>
+                <p class="shopping-list-subtitle">Missing ingredients from your Almost There recipes — all in one place</p>
+            </div>
+
+            <div id="shoppingListItems" class="shopping-list-items">
+            </div>
+
+            <div class="manual-add-row" style="margin-top: 1rem;">
+                <input
+                    id="shoppingListInput"
+                    type="text"
+                    placeholder="Add an item manually, e.g. butter"
+                    autocomplete="off"
+                >
+                <button id="addShoppingItemBtn" class="btn-secondary" type="button">Add Item</button>
+            </div>
+
+            <div class="shopping-list-actions">
+                <button id="printShoppingListBtn" class="btn-primary" type="button">🖨️ Print List</button>
+                <button id="downloadShoppingListBtn" class="btn-secondary" type="button">⬇️ Download .txt</button>
+                <button id="clearShoppingListBtn" class="btn-danger" type="button">Clear List</button>
+            </div>
+        </section>
+
+        <section class="filters-section">
+            <h2>Filter Recipes</h2>
+            <div class="search-bar-wrapper">
+                <input 
+                     type="text" 
+                     id="recipeSearch" 
+                     placeholder="Search by recipe name, ingredient or cuisine..."
+                     autocomplete="off"
+                >
+            </div>
+            <div class="filters">
+                <div class="filter-group">
+                    <label for="dietaryFilter">Dietary:</label>
+                    <select id="dietaryFilter">
+                        <option value="">All</option>
+                        <option value="vegetarian">Vegetarian</option>
+                        <option value="vegan">Vegan</option>
+                        <option value="halal">Halal</option>
+                        <option value="non-halal">Non-Halal</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="timeFilter">Prep Time:</label>
+                    <select id="timeFilter">
+                        <option value="">All</option>
+                        <option value="quick">Quick (≤30 min)</option>
+                        <option value="medium">Medium (31-60 min)</option>
+                        <option value="long">Long (>60 min)</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="cuisineFilter">Cuisine:</label>
+                    <select id="cuisineFilter">
+                        <option value="">All</option>
+                        <option value="Malay">Malay</option>
+                        <option value="Chinese">Chinese</option>
+                        <option value="Indian">Indian</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="difficultyFilter">Difficulty:</label>
+                    <select id="difficultyFilter">
+                        <option value="">All</option>
+                        <option value="easy">Easy</option>
+                        <option value="medium">Medium</option>
+                        <option value="hard">Hard</option>
+                    </select>
+                </div>
+
+                <button id="applyFiltersBtn" class="btn-primary" type="button">Apply Filters</button>
+            </div>
+        </section>
+
+        <section class="results-section">
+            <div class="results-header">
+                <h2>Recommended Recipes</h2>
+                <p id="recipeCount" class="results-count">Waiting for ingredient confirmation...</p>
+            </div>
+
+            <div id="loadingIndicator" class="loading" style="display: none;">
+                <p>🔄 Finding recipes...</p>
+            </div>
+
+            <div id="errorMessage" class="error-message" style="display: none;">
+                <p>⚠️ <span id="errorText"></span></p>
+            </div>
+
+            <div id="recipeGrid" class="recipes-grid" style="display: none;">
+            </div>
+
+            <div id="noResults" class="no-results" style="display: none;">
+                <p>😕 No recipes match your criteria</p>
+                <p class="hint">Try adjusting your filters or ingredients</p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Smart Recipee</p>
+        </div>
+    </footer>
+
+    <script src="js/browse.js"></script>
+    <script src="js/browse_detection.js"></script>
+</body>
+</html>

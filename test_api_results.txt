@@ -1,0 +1,232 @@
+﻿
+======================================================================
+TEST: Health Check
+======================================================================
+Status Code: 200
+Result: Γ£à PASSED
+Response:
+{
+  "message": "Smart Recipee API is running",
+  "recipes_loaded": 100,
+  "status": "healthy",
+  "version": "1.0.0"
+}
+
+======================================================================
+TEST: Get Available Filter Options
+======================================================================
+Status Code: 200
+Result: Γ£à PASSED
+Response:
+{
+  "data": {
+    "cuisines": [
+      "Chinese",
+      "Indian",
+      "Malay"
+    ],
+    "dietary_options": [
+      "halal",
+      "non-halal",
+      "vegan",
+      "vegetarian"
+    ],
+    "difficulties": [
+      "easy",
+      "hard",
+      "medium"
+    ],
+    "max_prep_time": 120,
+    "min_prep_time": 10,
+    "time_categories": [
+      "quick",
+      "medium",
+      "long"
+    ]
+  },
+  "success": true
+}
+
+======================================================================
+TEST: Get Recipe by ID (001 - Nasi Lemak)
+======================================================================
+Status Code: 200
+Result: Γ£à PASSED
+Recipe: Nasi Lemak
+Cuisine: Malay
+Has nutrition: True
+Calories: 650 kcal
+
+======================================================================
+TEST: Get Recipe by ID - Not Found (999)
+======================================================================
+Status Code: 404
+Result: Γ£à PASSED (correctly returned 404)
+Error message: Recipe with ID 999 not found
+
+======================================================================
+TEST: Basic Recommendation - No Filters
+======================================================================
+Status Code: 200
+Result: Γ£à PASSED
+Recipes returned: 31
+Top 3 matches:
+  - Nasi Goreng Kampung (40.0%)
+  - Nasi Lemak (37.5%)
+  - Nasi Kandar (33.3%)
+
+======================================================================
+TEST: Recommendation with Dietary Filter (Vegetarian)
+======================================================================
+Status Code: 200
+Result: Γ£à PASSED
+Recipes returned: 39
+Top 3 matches:
+  - Roti Jala (28.6%)
+  - Nasi Impit (25.0%)
+  - Apam Balik (22.2%)
+
+======================================================================
+TEST: Recommendation with Time Filter (Quick)
+======================================================================
+Status Code: 200
+Result: Γ£à PASSED
+Recipes returned: 7
+Top 3 matches:
+  - Roti Jala (28.6%)
+  - Egg Fried Rice (22.2%)
+  - Nasi Goreng Kampung (20.0%)
+
+======================================================================
+TEST: Recommendation with Multiple Filters (Veg + Quick + Malay)
+======================================================================
+Status Code: 200
+Result: Γ£à PASSED
+Recipes returned: 7
+Top 3 matches:
+  - Roti Jala (28.6%)
+  - Cendol (12.5%)
+  - Rojak (10.0%)
+
+======================================================================
+TEST: Recommendation with Difficulty Filter (Easy)
+======================================================================
+Status Code: 200
+Result: Γ£à PASSED
+Recipes returned: 14
+Top 3 matches:
+  - Nasi Goreng Kampung (40.0%)
+  - Egg Fried Rice (33.3%)
+  - Bubur Ayam (30.0%)
+
+======================================================================
+TEST: Recommendation with Max Prep Time (30 min)
+======================================================================
+Status Code: 200
+Result: Γ£à PASSED
+Recipes returned: 3
+Top 3 matches:
+  - Nasi Goreng Kampung (40.0%)
+  - Egg Fried Rice (33.3%)
+  - Char Kway Teow (20.0%)
+
+======================================================================
+TEST: Error Handling - Missing Ingredients Field
+======================================================================
+Status Code: 400
+Result: Γ£à PASSED (correctly returned 400)
+Error message: Missing required field: ingredients
+
+======================================================================
+TEST: Get All Recipes
+======================================================================
+Status Code: 200
+Result: Γ£à PASSED
+Total recipes: 100
+
+======================================================================
+TEST: Get All Recipes - Filter by Cuisine (Malay)
+======================================================================
+Status Code: 200
+Result: Γ£à PASSED
+Malay recipes returned: 54
+
+======================================================================
+TEST: Recommendation with Dietary Filter (Halal)
+======================================================================
+Status Code: 200
+Result: Γ£à PASSED
+Recipes returned: 17
+Top 3 matches:
+  - Nasi Lemak (37.5%)
+  - Nasi Goreng Kampung (30.0%)
+  - Curry Mee (30.0%)
+
+======================================================================
+TEST: Recommendation with Cuisine Filter (Indian)
+======================================================================
+Status Code: 200
+Result: Γ£à PASSED
+Recipes returned: 3
+Top 3 matches:
+  - Roti Canai (42.9%)
+  - Roti Telur (42.9%)
+  - Murtabak (33.3%)
+
+======================================================================
+TEST: Get Ratings - Recipe 001 (Nasi Lemak)
+======================================================================
+Status Code: 200
+Result: Γ£à PASSED
+Average rating: 5.0
+Total ratings: 2
+
+======================================================================
+TEST: Submit Rating - Recipe 001
+======================================================================
+Status Code: 201
+Result: Γ£à PASSED
+New average: 5.0
+Total ratings now: 3
+
+======================================================================
+TEST: Submit Rating - Invalid Stars (Error Handling)
+======================================================================
+Status Code: 400
+Result: Γ£à PASSED (correctly returned 400)
+Error message: stars must be an integer between 1 and 5
+
+======================================================================
+TEST: Chat Endpoint - Culinary Assistant
+======================================================================
+Status Code: 200
+Result: Γ£à PASSED
+Assistant reply (first 150 chars):
+  You've got a great combo there. With rice and chicken, I'd recommend making a simple and delicious Chicken Fried Rice. You can also add some minced ga...
+
+======================================================================
+TEST: Chat Endpoint - Error Handling (Missing Message)
+======================================================================
+Status Code: 400
+Result: Γ£à PASSED (correctly returned 400)
+Error message: Message is required
+
+======================================================================
+API TESTING COMPLETE ΓÇö SUMMARY
+======================================================================
+
+  Total tests run  : 20
+  Passed           : 20 Γ£à
+  Failed           : 0 Γ¥î
+  Success rate     : 100.0%
+
+  Endpoints tested :
+    GET  /api/health          Γ£à
+    GET  /api/filters         Γ£à
+    GET  /api/recipes         Γ£à
+    GET  /api/recipe/<id>     Γ£à
+    POST /api/recommend       Γ£à
+    GET  /api/ratings/<id>    Γ£à
+    POST /api/ratings/<id>    Γ£à
+    POST /api/chat            Γ£à
+

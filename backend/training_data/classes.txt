@@ -1,0 +1,17 @@
+bean_sprouts
+fresh tomato
+rotten tomato
+fresh pakchoy
+fresh carrot
+turmeric
+curry_leaves
+eggplant
+fish
+potato
+fresh cucumber
+corn
+tomato
+pakchoy
+carrot
+chicken
+cucumber
