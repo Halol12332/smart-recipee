@@ -15,3 +15,5 @@ pakchoy
 carrot
 chicken
 cucumber
+lime
+ginger

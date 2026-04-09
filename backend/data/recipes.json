@@ -8628,6 +8628,57 @@
         "Traditionally served on communal tray for sharing",
         "Eat together from shared plate with hands"
       ]
+    },
+    {
+      "id": "101",
+      "name": "Simple Steamed Fish",
+      "cuisine": "Malay",
+      "image": "./images/recipes/101-custom.jpg",
+      "dietary": [
+        "non-halal"
+      ],
+      "difficulty": "easy",
+      "prepTime": 24,
+      "servings": 4,
+      "nutrition": {
+        "calories": 450,
+        "protein": 25,
+        "carbohydrates": 55,
+        "fat": 18,
+        "fibre": 4
+      },
+      "ingredients": [
+        {
+          "name": "fish",
+          "quantity": "1",
+          "unit": "pieces"
+        },
+        {
+          "name": "ginger",
+          "quantity": "1-2",
+          "unit": "pieces"
+        },
+        {
+          "name": "fresh tomato",
+          "quantity": "1",
+          "unit": "pieces"
+        },
+        {
+          "name": "carrot",
+          "quantity": "1",
+          "unit": "pieces"
+        }
+      ],
+      "instructions": [
+        "Clean the fish and make diagonal cuts on both sides.",
+        "Place sliced ginger inside the fish cavity and on top.",
+        "Add sliced tomato and carrot on top of the fish.",
+        "Steam the fish on high heat for 10-12 minutes.",
+        "While the fish steams, you can prepare a simple sauce by mixing grated ginger with a bit of water (since you don't have soy sauce).",
+        "Remove the steamed fish, discard the water, and pour the ginger sauce over the fish.",
+        "Serve immediately and enjoy!"
+      ],
+      "user_added": true
     }
   ]
 }
