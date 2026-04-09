@@ -59,7 +59,7 @@
                 <div id="imageZoomContainer" style="position: relative; overflow: auto; max-height: 600px; border: 1px solid #ede9fe; border-radius: 8px; text-align: center; display: flex; justify-content: center;">
                     
                     <div id="canvasWrapper" style="position: relative; display: inline-block;">
-                        <img id="annotatedPreviewImage" class="annotated-preview-image" alt="Annotated detection result" style="transform-origin: top left; transition: transform 0.2s ease; display: block;">
+                        <img id="annotatedPreviewImage" crossorigin="anonymous" class="annotated-preview-image" alt="Annotated detection result" style="transform-origin: top left; transition: transform 0.2s ease; display: block;">
                         
                         <canvas id="annotationCanvas" style="position: absolute; top: 0; left: 0; cursor: crosshair; display: none; z-index: 10; transform-origin: top left; transition: transform 0.2s ease;"></canvas>
                     </div>
@@ -70,7 +70,38 @@
                     <p class="hint">Click and drag on the image above to draw a bounding box around an ingredient.</p>
                     
                     <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 15px; flex-wrap: wrap;">
-                        <input type="text" id="annotationLabelInput" placeholder="Enter ingredient name (e.g. tomato)" style="padding: 8px; flex: 1; min-width: 200px; border: 1px solid #ccc; border-radius: 4px;">
+                        <select id="annotationLabelInput" style="padding: 8px; flex: 1; min-width: 200px; border: 1px solid #ccc; border-radius: 4px; background-color: white; cursor: pointer;">
+                            <option value="anchovies">anchovies</option>
+                            <option value="apple">apple</option>
+                            <option value="bean_sprouts">bean_sprouts</option>
+                            <option value="brocolli">brocolli</option>
+                            <option value="cabbage">cabbage</option>
+                            <option value="carrot">carrot</option>
+                            <option value="chicken">chicken</option>
+                            <option value="chili">chili</option>
+                            <option value="coconut_milk">coconut_milk</option>
+                            <option value="corn">corn</option>
+                            <option value="cucumber">cucumber</option>
+                            <option value="curry_leaves">curry_leaves</option>
+                            <option value="egg">egg</option>
+                            <option value="eggplant">eggplant</option>
+                            <option value="fish">fish</option>
+                            <option value="garlic">garlic</option>
+                            <option value="ginger">ginger</option>
+                            <option value="grape">grape</option>
+                            <option value="leafy_greens">leafy_greens</option>
+                            <option value="lemongrass">lemongrass</option>
+                            <option value="lime">lime</option>
+                            <option value="onion">onion</option>
+                            <option value="orange">orange</option>
+                            <option value="pakchoy">pakchoy</option>
+                            <option value="potato">potato</option>
+                            <option value="spring_onion">spring_onion</option>
+                            <option value="tempeh">tempeh</option>
+                            <option value="tofu">tofu</option>
+                            <option value="tomato" selected>tomato</option>
+                            <option value="turmeric">turmeric</option>
+                        </select>
                         <button id="addBoxBtn" class="btn-secondary" type="button" disabled>Add Box</button>
                         <button id="clearBoxesBtn" class="btn-outline" type="button">Clear Drawing</button>
                     </div>

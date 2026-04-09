@@ -17,7 +17,7 @@ The application is built on a 2-pillar architecture:
 ## 📂 Project Structure
 
 ```text
-smart_recipee_v2/
+smart_recipee/
 ├── backend/                  # Core Flask & Inference API
 │   ├── data/                 # Localized recipe JSON databases
 │   ├── models/               # Model weights directory (weights excluded via gitignore)

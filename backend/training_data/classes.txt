@@ -1,19 +1,32 @@
+anchovies
+apple
 bean_sprouts
-fresh tomato
-rotten tomato
-fresh pakchoy
-fresh carrot
-turmeric
-curry_leaves
-eggplant
-fish
-potato
-fresh cucumber
-corn
-tomato
-pakchoy
+brocolli
+cabbage
 carrot
 chicken
+chili
+coconut_milk
+corn
 cucumber
-lime
+curry_leaves
+egg
+eggplant
+fish
+garlic
 ginger
+grape
+leafy_greens
+lemongrass
+lime
+onion
+orange
+pakchoy
+pandan_leaves
+potato
+spring_onion
+tempeh
+tofu
+tomato
+turmeric
+unknown_bag

@@ -98,10 +98,18 @@ def _draw_detections(image, detections: List[Dict[str, Any]]):
 
     for det in detections:
         x1, y1, x2, y2 = det["bbox"]
-        label = f'{det["name"]} {det["confidence"]:.2f}'
+        
+        # --- NEW IMAGE RENDERING LOGIC ---
+        raw_name = det["name"].lower()
+        is_suspicious = "rotten" in raw_name or "spoiled" in raw_name
+        
+        # Strip the condition words so the image just says "tomato"
+        clean_name = raw_name.replace("rotten", "").replace("fresh", "").replace("spoiled", "").strip()
+        label = f'{clean_name} {det["confidence"]:.2f}'
 
-        # Change box color to red if rotten, otherwise green
-        color = (0, 0, 255) if "rotten" in det["name"].lower() else (0, 255, 0)
+        # Change box color to Orange (Warning) if suspicious, otherwise standard Green
+        # OpenCV uses BGR (Blue, Green, Red) format, so Orange is (0, 165, 255)
+        color = (0, 165, 255) if is_suspicious else (0, 255, 0)
 
         x1, y1, x2, y2 = map(int, [x1, y1, x2, y2])
 

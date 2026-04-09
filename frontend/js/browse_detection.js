@@ -145,12 +145,49 @@ async function detectFromUpload() {
 
         DETECTION_DATA = payload.data;
         
-        USER_INGREDIENTS = DETECTION_DATA.ingredients.map(ing => ({
-            name: normalizeIngredient(ing.name),
-            original_name: normalizeIngredient(ing.name),
-            detection_id: ing.detection_id,
-            count: ing.count || 1
-        }));
+        // --- NEW FRESHNESS INTERCEPT LOGIC ---
+        USER_INGREDIENTS = [];
+        let rottenItems = [];
+
+        // 1. Sort ingredients into "Good" and "Suspicious"
+        DETECTION_DATA.ingredients.forEach(ing => {
+            let normalizedName = normalizeIngredient(ing.name);
+            if (normalizedName.includes('rotten') || normalizedName.includes('spoiled')) {
+                rottenItems.push(ing);
+            } else {
+                USER_INGREDIENTS.push({
+                    name: normalizedName,
+                    original_name: normalizedName,
+                    detection_id: ing.detection_id,
+                    count: ing.count || 1
+                });
+            }
+        });
+
+        // 2. If the model found rotten items, alert the user
+        if (rottenItems.length > 0) {
+            // Extract just the clean names (e.g. turning "rotten tomato" into "tomato")
+            let badNames = rottenItems.map(i => i.name.replace(/(rotten|spoiled)\s*/gi, '').trim()).join(', ');
+            
+            // Trigger the browser confirmation popup
+            let userSaysIsRotten = confirm(`⚠️ Warning: Our model detected that these ingredients (${badNames}) may not be good for use.\n\nAre these ingredients rotten?\n\n• Click "OK" if they ARE rotten (we will discard them).\n• Click "Cancel" if they are FRESH (we will add them to your recipe).`);
+
+            if (!userSaysIsRotten) {
+                // User clicked "Cancel" (The model was wrong, the food is fresh!)
+                // Add them to the list, but strip away the word "rotten"
+                rottenItems.forEach(ing => {
+                    let cleanName = normalizeIngredient(ing.name.replace(/(rotten|spoiled)\s*/gi, '').trim());
+                    USER_INGREDIENTS.push({
+                        name: cleanName,
+                        original_name: normalizeIngredient(ing.name),
+                        detection_id: ing.detection_id,
+                        count: ing.count || 1
+                    });
+                });
+            }
+            // If user clicked "OK", we do nothing, meaning the rotten items stay out of USER_INGREDIENTS!
+        }
+        // --- END FRESHNESS LOGIC ---
         
         CONFIRMED_INGREDIENTS = [];
         persistDetectionState();
@@ -224,9 +261,13 @@ function enableAnnotationMode() {
         
         DETECTION_DATA.detections.forEach(det => {
             const [x1, y1, x2, y2] = det.bbox;
+            
+            // NEW: Strip out 'rotten' or 'spoiled' so it perfectly matches the dropdown options!
+            let cleanClassName = det.name.replace(/(rotten|spoiled)\s*/gi, '').trim();
+
             DRAWN_BOXES.push({
                 id: Math.random().toString(36).substr(2, 9),
-                class_name: det.name,
+                class_name: cleanClassName,
                 cx: ((x1 + x2) / 2) / origW,
                 cy: ((y1 + y2) / 2) / origH,
                 w: (x2 - x1) / origW,
@@ -325,7 +366,7 @@ function finishDrawing() {
     if (w > 0.02 && h > 0.02) {
         const newBox = {
             id: Math.random().toString(36).substr(2, 9),
-            class_name: annotationLabelInput.value.trim() || 'new_ingredient',
+            class_name: annotationLabelInput.value || 'tomato', // Uses the dropdown value
             cx: x1 + (w / 2),
             cy: y1 + (h / 2),
             w: w,
@@ -335,8 +376,7 @@ function finishDrawing() {
         DRAWN_BOXES.push(newBox);
         SELECTED_BOX = newBox;
         annotationLabelInput.value = newBox.class_name;
-        annotationLabelInput.focus();
-        annotationLabelInput.select();
+        annotationLabelInput.focus(); // Removed the .select() call here
     }
     
     CURRENT_BOX = null;
@@ -454,16 +494,91 @@ async function submitAnnotationsToServer() {
         annotationStatusMsg.textContent = '✅ ' + data.message;
         annotationStatusMsg.style.color = '#2e7d32';
 
-        DRAWN_BOXES.forEach(box => {
-            if (!USER_INGREDIENTS.some(i => i.name === box.class_name)) {
-                USER_INGREDIENTS.push({ name: box.class_name, original_name: box.class_name, detection_id: null, count: 1 });
-            }
-        });
-        
+        // --- NEW FEATURE: DYNAMIC CANVAS GENERATION ---
+        try {
+            // 1. Generate New Main Preview Image
+            const img = annotatedPreviewImage; // Currently holds the clean, original image
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = img.naturalWidth;
+            canvas.height = img.naturalHeight;
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+            // Draw the user's manual boxes
+            DRAWN_BOXES.forEach(box => {
+                const raw_w = box.w * canvas.width;
+                const raw_h = box.h * canvas.height;
+                const raw_x = (box.cx * canvas.width) - (raw_w / 2);
+                const raw_y = (box.cy * canvas.height) - (raw_h / 2);
+
+                ctx.strokeStyle = '#00e5ff'; // Cyan color to indicate it was manually drawn
+                ctx.lineWidth = Math.max(3, canvas.width / 400);
+                ctx.strokeRect(raw_x, raw_y, raw_w, raw_h);
+
+                ctx.fillStyle = '#00e5ff';
+                ctx.font = `${Math.max(16, canvas.width / 60)}px Arial`;
+                const textWidth = ctx.measureText(box.class_name).width;
+                ctx.fillRect(raw_x, raw_y - 25, textWidth + 10, 25);
+                ctx.fillStyle = '#000000';
+                ctx.fillText(box.class_name, raw_x + 5, raw_y - 5);
+            });
+
+            // Overwrite the old AI preview with our new image!
+            DETECTION_DATA.annotated_image_url = canvas.toDataURL('image/jpeg', 0.85);
+
+            // 2. Slicing New Crop Images
+            USER_INGREDIENTS = [];
+            DETECTION_DATA.ingredients = []; // Clear the old AI predictions completely
+            let boxCounts = {};
+
+            DRAWN_BOXES.forEach(box => {
+                boxCounts[box.class_name] = (boxCounts[box.class_name] || 0) + 1;
+
+                if (boxCounts[box.class_name] === 1) {
+                    // Slicing the crop for the first occurrence
+                    const cropCanvas = document.createElement('canvas');
+                    const cropCtx = cropCanvas.getContext('2d');
+                    const raw_w = box.w * canvas.width;
+                    const raw_h = box.h * canvas.height;
+                    const raw_x = (box.cx * canvas.width) - (raw_w / 2);
+                    const raw_y = (box.cy * canvas.height) - (raw_h / 2);
+
+                    cropCanvas.width = raw_w;
+                    cropCanvas.height = raw_h;
+                    cropCtx.drawImage(img, raw_x, raw_y, raw_w, raw_h, 0, 0, raw_w, raw_h);
+                    
+                    const fakeId = 'manual_' + Math.random().toString(36).substr(2, 9);
+                    const cropUrl = cropCanvas.toDataURL('image/jpeg', 0.85);
+
+                    // Inject the new crop back into the dataset
+                    DETECTION_DATA.ingredients.push({
+                        name: box.class_name,
+                        detection_id: fakeId,
+                        crop_image_url: cropUrl,
+                        confidence: 1.0 // Manual = 100% confidence
+                    });
+
+                    USER_INGREDIENTS.push({
+                        name: box.class_name,
+                        original_name: box.class_name,
+                        detection_id: fakeId,
+                        count: 1
+                    });
+                } else {
+                    let existing = USER_INGREDIENTS.find(i => i.name === box.class_name);
+                    if (existing) existing.count++;
+                }
+            });
+        } catch (canvasError) {
+            console.error("Canvas failed (likely CORS). Overwriting names without images.", canvasError);
+            // If it fails, it still saves the names, just without the pictures
+        }
+        // --- END DYNAMIC GENERATION ---
+
         persistDetectionState();
         displayIngredients(USER_INGREDIENTS);
 
-        setTimeout(() => { disableAnnotationMode(); }, 2000);
+        setTimeout(() => { disableAnnotationMode(); }, 1500);
     } catch (error) {
         annotationStatusMsg.textContent = `⚠️ Failed: ${error.message}`;
         annotationStatusMsg.style.color = '#c62828';
