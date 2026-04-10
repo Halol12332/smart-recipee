@@ -20,11 +20,12 @@ __pycache__/
 # backend/models/*.pth
 
 # ==========================================
-# 4. User Uploads & Inference Outputs
+# 4. User Uploads, Inference Outputs & Active Learning
 # ==========================================
-# Ignores user-uploaded fridge images and YOLO prediction outputs
+# Ignores user-uploaded fridge images, YOLO prediction outputs, and HITL data
 backend/uploads/
 backend/runs/
+backend/training_data/*
 
 # ==========================================
 # 5. Security / Credentials
@@ -37,3 +38,16 @@ backend/runs/
 .DS_Store
 Thumbs.db
 make_tree.py
+
+# ==========================================
+# 7. Big Data Files & Training Artifacts (Runs)
+# ==========================================
+# Datasets
+model_training/freshness_classification/dataset/
+model_training/object_detection/rt_detr_training/myproject-10/
+model_training/object_detection/yolov8_training/myproject-10/
+
+# Training Runs / Logs / Cache
+model_training/freshness_classification/runs/
+model_training/object_detection/rt_detr_training/runs/
+model_training/object_detection/yolov8_training/runs/

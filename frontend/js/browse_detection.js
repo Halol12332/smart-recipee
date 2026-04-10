@@ -61,6 +61,10 @@ const cancelAnnotationBtn = document.getElementById('cancelAnnotationBtn');
 const currentAnnotationsList = document.getElementById('currentAnnotationsList');
 const annotationStatusMsg = document.getElementById('annotationStatusMsg');
 let canvasCtx = annotationCanvas ? annotationCanvas.getContext('2d') : null;
+const displayCanvas = document.getElementById('displayCanvas');
+const showBboxCheck = document.getElementById('showBboxCheck');
+const showConfCheck = document.getElementById('showConfCheck');
+let displayCtx = displayCanvas ? displayCanvas.getContext('2d') : null;
 
 // ============================================
 // INITIALIZATION
@@ -117,6 +121,9 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    if (showBboxCheck) showBboxCheck.addEventListener('change', renderAIDetections);
+    if (showConfCheck) showConfCheck.addEventListener('change', renderAIDetections);
+
     restoreSavedState();
 });
 
@@ -145,7 +152,6 @@ async function detectFromUpload() {
 
         DETECTION_DATA = payload.data;
         
-        // --- NEW FRESHNESS INTERCEPT LOGIC ---
         USER_INGREDIENTS = [];
         let rottenItems = [];
 
@@ -210,7 +216,7 @@ async function detectFromUpload() {
 function displayDetectionPreview(data) {
     if (!detectionPreview || !annotatedPreviewImage) return;
 
-    if (!data || !data.annotated_image_url) {
+    if (!data || !data.original_image_url) {
         detectionPreview.style.display = 'none';
         return;
     }
@@ -220,11 +226,15 @@ function displayDetectionPreview(data) {
             annotationCanvas.width = annotatedPreviewImage.offsetWidth;
             annotationCanvas.height = annotatedPreviewImage.offsetHeight;
         }
+        if (displayCanvas) {
+            displayCanvas.width = annotatedPreviewImage.offsetWidth;
+            displayCanvas.height = annotatedPreviewImage.offsetHeight;
+            renderAIDetections(); // Draw the dynamic boxes once image loads
+        }
     };
 
-    annotatedPreviewImage.src = data.annotated_image_url;
-    annotatedPreviewImage.alt = 'Detected ingredients with bounding boxes';
-
+    annotatedPreviewImage.src = data.original_image_url;
+    
     if (detectionSummary) detectionSummary.style.display = 'none';
     detectionPreview.style.display = 'block';
 }
@@ -238,6 +248,7 @@ function enableAnnotationMode() {
     DRAWN_BOXES = [];
     SELECTED_BOX = null;
     CURRENT_BOX = null;
+    if (displayCanvas) displayCanvas.style.display = 'none';
 
     if (startAnnotationBtn) startAnnotationBtn.style.display = 'none';
     if (annotationControls) annotationControls.style.display = 'block';
@@ -254,7 +265,6 @@ function enableAnnotationMode() {
         annotationCanvas.height = annotatedPreviewImage.offsetHeight;
     }
     
-    // Preload AI detections as editable boxes
     if (DETECTION_DATA && DETECTION_DATA.detections) {
         const origW = annotatedPreviewImage.naturalWidth || 1;
         const origH = annotatedPreviewImage.naturalHeight || 1;
@@ -288,11 +298,15 @@ function enableAnnotationMode() {
 
 function disableAnnotationMode() {
     IS_ANNOTATING = false;
+    
+    if (displayCanvas) displayCanvas.style.display = 'block';
+    
     if (startAnnotationBtn) startAnnotationBtn.style.display = 'inline-block';
     if (annotationControls) annotationControls.style.display = 'none';
     if (annotationCanvas) annotationCanvas.style.display = 'none';
-    if (DETECTION_DATA && DETECTION_DATA.annotated_image_url) {
-        annotatedPreviewImage.src = DETECTION_DATA.annotated_image_url;
+    
+    if (typeof renderAIDetections === 'function') {
+        renderAIDetections();
     }
 }
 
@@ -493,8 +507,26 @@ async function submitAnnotationsToServer() {
 
         annotationStatusMsg.textContent = '✅ ' + data.message;
         annotationStatusMsg.style.color = '#2e7d32';
+        // NEW: Overwrite the core detections array so the dynamic canvas draws the corrected boxes
+        const baseImg = annotatedPreviewImage;
+        const origW = baseImg.naturalWidth || 1;
+        const origH = baseImg.naturalHeight || 1;
 
-        // --- NEW FEATURE: DYNAMIC CANVAS GENERATION ---
+        DETECTION_DATA.detections = DRAWN_BOXES.map(box => {
+            // Convert normalized coordinates back to absolute pixels
+            const x1 = (box.cx - box.w / 2) * origW;
+            const y1 = (box.cy - box.h / 2) * origH;
+            const x2 = (box.cx + box.w / 2) * origW;
+            const y2 = (box.cy + box.h / 2) * origH;
+            
+            return {
+                bbox: [x1, y1, x2, y2],
+                name: box.class_name,
+                confidence: 1.0, // Manual corrections are 100% confident
+                detection_id: box.id || ('manual_' + Math.random().toString(36).substr(2, 9))
+            };
+        });
+
         try {
             // 1. Generate New Main Preview Image
             const img = annotatedPreviewImage; // Currently holds the clean, original image
@@ -584,6 +616,67 @@ async function submitAnnotationsToServer() {
         annotationStatusMsg.style.color = '#c62828';
         submitAnnotationsBtn.disabled = false;
     }
+}
+
+function renderAIDetections() {
+    if (!displayCtx || !displayCanvas || !DETECTION_DATA || !DETECTION_DATA.detections) return;
+    
+    // Clear previous drawings
+    displayCtx.clearRect(0, 0, displayCanvas.width, displayCanvas.height);
+    
+    // If bounding boxes are toggled off, exit early (canvas remains clear)
+    if (!showBboxCheck.checked) return; 
+
+    const origW = annotatedPreviewImage.naturalWidth || 1;
+    const origH = annotatedPreviewImage.naturalHeight || 1;
+    const cw = displayCanvas.width;
+    const ch = displayCanvas.height;
+    const showConf = showConfCheck.checked;
+
+    DETECTION_DATA.detections.forEach(det => {
+        const [x1, y1, x2, y2] = det.bbox;
+        
+        // Scale backend coordinates to frontend canvas size
+        const raw_x = (x1 / origW) * cw;
+        const raw_y = (y1 / origH) * ch;
+        const raw_w = ((x2 - x1) / origW) * cw;
+        const raw_h = ((y2 - y1) / origH) * ch;
+
+        // Visual Sanitization (Orange for rotten, Green for fresh)
+        const isRotten = det.name.toLowerCase().includes('rotten') || det.name.toLowerCase().includes('spoiled');
+        const boxColor = isRotten ? '#ff9800' : '#4caf50';
+
+        // Draw Box
+        displayCtx.strokeStyle = boxColor;
+        displayCtx.lineWidth = 3;
+        displayCtx.strokeRect(raw_x, raw_y, raw_w, raw_h);
+
+        // Build Label String
+        let labelText = det.name.replace(/(rotten|spoiled)\s*/gi, '').trim(); 
+        
+        // Match confidence from ingredients array if not directly inside det
+        let confidenceStr = "";
+        if (showConf) {
+            let confValue = det.confidence;
+            if (confValue === undefined && DETECTION_DATA.ingredients) {
+                const matchedIng = DETECTION_DATA.ingredients.find(i => i.detection_id === det.detection_id);
+                if (matchedIng && matchedIng.confidence) confValue = matchedIng.confidence;
+            }
+            if (confValue !== undefined) confidenceStr = ` ${Math.round(confValue * 100)}%`;
+        }
+
+        labelText += confidenceStr;
+
+        // Draw Label Background
+        displayCtx.fillStyle = boxColor;
+        displayCtx.font = '14px Arial';
+        const textWidth = displayCtx.measureText(labelText).width;
+        displayCtx.fillRect(raw_x, Math.max(0, raw_y - 22), textWidth + 10, 22);
+        
+        // Draw Label Text
+        displayCtx.fillStyle = isRotten ? '#000000' : '#ffffff';
+        displayCtx.fillText(labelText, raw_x + 5, Math.max(0, raw_y - 6));
+    });
 }
 
 // ============================================
@@ -693,11 +786,13 @@ function applyZoom(step) {
     if (currentZoom > MAX_ZOOM) currentZoom = MAX_ZOOM;
     if (currentZoom < MIN_ZOOM) currentZoom = MIN_ZOOM;
     if (annotatedPreviewImage) annotatedPreviewImage.style.transform = `scale(${currentZoom})`;
+    if (displayCanvas) displayCanvas.style.transform = `scale(${currentZoom})`;
     if (annotationCanvas) annotationCanvas.style.transform = `scale(${currentZoom})`;
 }
 
 function resetZoom() {
     currentZoom = 1;
+    if (displayCanvas) displayCanvas.style.transform = `scale(${currentZoom})`;
     if (annotatedPreviewImage) annotatedPreviewImage.style.transform = `scale(${currentZoom})`;
     if (annotationCanvas) annotationCanvas.style.transform = `scale(${currentZoom})`;
 }

@@ -57,12 +57,22 @@
                 </div>
 
                 <div id="imageZoomContainer" style="position: relative; overflow: auto; max-height: 600px; border: 1px solid #ede9fe; border-radius: 8px; text-align: center; display: flex; justify-content: center;">
-                    
                     <div id="canvasWrapper" style="position: relative; display: inline-block;">
-                        <img id="annotatedPreviewImage" crossorigin="anonymous" class="annotated-preview-image" alt="Annotated detection result" style="transform-origin: top left; transition: transform 0.2s ease; display: block;">
+                        <img id="annotatedPreviewImage" crossorigin="anonymous" class="annotated-preview-image" alt="Detection result" style="transform-origin: top left; transition: transform 0.2s ease; display: block;">
+                        
+                        <canvas id="displayCanvas" style="position: absolute; top: 0; left: 0; pointer-events: none; z-index: 5; transform-origin: top left; transition: transform 0.2s ease;"></canvas>
                         
                         <canvas id="annotationCanvas" style="position: absolute; top: 0; left: 0; cursor: crosshair; display: none; z-index: 10; transform-origin: top left; transition: transform 0.2s ease;"></canvas>
                     </div>
+                </div>
+
+                <div id="toggleControls" style="text-align: center; margin-top: 15px; font-size: 1rem; color: #333;">
+                    <label style="margin-right: 20px; cursor: pointer; font-weight: 500;">
+                        <input type="checkbox" id="showBboxCheck" checked> Show Bounding Boxes
+                    </label>
+                    <label style="cursor: pointer; font-weight: 500;">
+                        <input type="checkbox" id="showConfCheck" checked> Show Confidence
+                    </label>
                 </div>
 
                 <div id="annotationControls" style="display: none; margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 8px; border: 1px solid #e0e0e0; text-align: left;">
