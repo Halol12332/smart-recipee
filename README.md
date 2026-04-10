@@ -59,9 +59,8 @@ Initialize a Virtual Environment (Crucial for dependency isolation):
 ```Bash
 python -m venv .venv
 ```
-Activate on Windows: .\.venv\Scripts\activate
-
-Activate on Mac/Linux: source .venv/bin/activate
+* Activate on Windows: .\.venv\Scripts\activate
+* Activate on Mac/Linux: source .venv/bin/activate
 
 Install the required dependencies:
 
