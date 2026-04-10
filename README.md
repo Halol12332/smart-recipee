@@ -30,7 +30,8 @@ smart_recipee/
 │   ├── utils/                # Detection adapter, recipe filter, and fuzzy matcher
 │   ├── app.py                # Main backend web application
 │   ├── detect_api.py         # Service for computer vision inference
-│   └── preprocess.py         # Image normalization and enhancement logic
+│   ├── preprocess.py         # Image normalization and enhancement logic
+│   └── .env                  # Chatbot API Key Credentials  
 │
 ├── frontend/                 # User Interface
 │   ├── css/                  # Stylesheets
