@@ -8659,7 +8659,7 @@
           "unit": "pieces"
         },
         {
-          "name": "fresh tomato",
+          "name": "tomato",
           "quantity": "1",
           "unit": "pieces"
         },
@@ -8677,6 +8677,55 @@
         "While the fish steams, you can prepare a simple sauce by mixing grated ginger with a bit of water (since you don't have soy sauce).",
         "Remove the steamed fish, discard the water, and pour the ginger sauce over the fish.",
         "Serve immediately and enjoy!"
+      ],
+      "user_added": true
+    },
+    {
+      "id": "102",
+      "name": "Classic Tomato Egg Stir-Fry",
+      "cuisine": "Chinese",
+      "image": "./images/recipes/102-custom.jpg",
+      "dietary": [
+        "vegetarian"
+      ],
+      "difficulty": "easy",
+      "prepTime": 10,
+      "servings": 2,
+      "nutrition": {
+        "calories": 250,
+        "protein": 14,
+        "carbohydrates": 10,
+        "fat": 16,
+        "fibre": 3
+      },
+      "ingredients": [
+        {
+          "name": "egg",
+          "quantity": "3",
+          "unit": "pieces"
+        },
+        {
+          "name": "tomato",
+          "quantity": "2",
+          "unit": "pieces"
+        },
+        {
+          "name": "garlic",
+          "quantity": "2",
+          "unit": "cloves"
+        },
+        {
+          "name": "spring_onion",
+          "quantity": "1",
+          "unit": "stalks"
+        }
+      ],
+      "instructions": [
+        "Beat the eggs in a bowl",
+        "Chop the tomatoes into wedges and mince the garlic and spring onion.",
+        "Scramble the eggs in a hot oiled pan until just set, then remove.",
+        "In the same pan, fry the garlic, then add the tomatoes until they soften and release their juices.",
+        "Add the eggs back in, toss together, and garnish with spring onion."
       ],
       "user_added": true
     }
